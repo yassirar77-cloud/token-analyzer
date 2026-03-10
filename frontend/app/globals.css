@@ -2,17 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Climate+Crisis&family=Tektur:wght@400;500;600;700&display=swap');
+
+/* Custom fonts - Marine Corps approximation */
+@font-face {
+  font-family: 'Marine Corps';
+  src: local('Impact'), local('Arial Black');
+  font-style: italic;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: 'PROGRESS PERSONAL USE';
+  src: local('Impact'), local('Arial Black');
+  font-weight: normal;
+}
+
 :root {
-  --font-inter: 'Inter', system-ui, sans-serif;
-  --font-poppins: 'Poppins', system-ui, sans-serif;
+  --font-tektur: 'Tektur', system-ui, sans-serif;
+  --font-climate: 'Climate Crisis', system-ui, sans-serif;
+  --brand-blue: #0049D0;
+  --brand-red: #F2134A;
+  --brand-bg: #141414;
 }
 
 body {
-  font-family: var(--font-inter);
+  font-family: var(--font-tektur);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-poppins);
+  font-family: var(--font-climate);
 }
 
 @layer base {
@@ -21,7 +41,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   body {
-    @apply bg-dark-900 text-white antialiased;
+    @apply bg-brand-bg text-white antialiased;
   }
 }
 
@@ -34,12 +54,76 @@ h1, h2, h3, h4, h5, h6 {
     @apply bg-dark-700 hover:bg-dark-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200;
   }
 
+  .btn-gradient {
+    background: linear-gradient(115deg, #0049D0 26%, #F2134A 117%);
+    @apply text-white font-semibold py-5 px-16 rounded-full transition-all duration-200 hover:scale-105 relative overflow-hidden;
+    box-shadow: inset -1px -1px 4px rgba(255,255,255,0.25), inset 0 4px 4px rgba(255,255,255,0.25);
+  }
+
+  .btn-outline {
+    @apply bg-brand-bg border-3 border-white text-white font-semibold py-5 px-16 rounded-full transition-all duration-200 hover:scale-105;
+  }
+
+  .btn-gradient-sm {
+    background: linear-gradient(115deg, #0049D0 26%, #F2134A 117%);
+    @apply text-white font-semibold py-4 px-12 rounded-full transition-all duration-200 hover:scale-105 relative overflow-hidden;
+    box-shadow: inset -1px -1px 4px rgba(255,255,255,0.25), inset 0 4px 4px rgba(255,255,255,0.25);
+  }
+
   .card {
     @apply bg-dark-800 rounded-xl p-6 border border-dark-700 hover:border-primary-600 transition-all duration-200;
   }
 
   .input {
     @apply bg-dark-800 border border-dark-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary-600 transition-colors;
+  }
+
+  .section-title {
+    font-family: 'Climate Crisis', sans-serif;
+    @apply text-4xl text-white text-center;
+  }
+
+  .section-subtitle {
+    font-family: 'Tektur', sans-serif;
+    @apply text-base text-white text-center leading-relaxed;
+  }
+
+  .value-card {
+    @apply relative w-[356px] h-[397px];
+  }
+
+  .value-card-body {
+    @apply absolute bg-brand-bg border-6 border-white rounded-[20px];
+    top: 12.09%;
+    left: 0;
+    right: 0;
+    bottom: 6.8%;
+  }
+
+  .value-card-glow {
+    @apply absolute;
+    top: 0;
+    left: 0;
+    width: 76px;
+    height: 76px;
+    transform: rotate(-11.59deg);
+    background: linear-gradient(to bottom, #C11D65, #403AAD);
+    border-radius: 13px;
+    filter: blur(12.5px);
+  }
+
+  .value-card-tag {
+    background: linear-gradient(to right, #373DB2, #C71C61);
+    @apply absolute border-6 border-[#4439AA] rounded-[20px] flex items-center justify-center;
+    bottom: 0;
+    left: 11.8%;
+    right: 11.8%;
+    height: 55px;
+  }
+
+  .gradient-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
   }
 }
 

@@ -1,7 +1,6 @@
 'use client';
 
 import './globals.css';
-import { Inter, Poppins } from 'next/font/google';
 import { WagmiConfig } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
@@ -9,13 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { wagmiConfig, chains } from '@/lib/wagmi';
 import Navbar from '@/components/Navbar';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const poppins = Poppins({
-  weight: ['400', '600', '700'],
-  subsets: ['latin'],
-  variable: '--font-poppins',
-});
+import { usePathname } from 'next/navigation';
 
 const queryClient = new QueryClient();
 
@@ -24,14 +17,25 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
-      <body className="bg-dark-900 text-white min-h-screen">
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Climate+Crisis&family=Tektur:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="bg-brand-bg text-white min-h-screen">
         <WagmiConfig config={wagmiConfig}>
           <QueryClientProvider client={queryClient}>
             <RainbowKitProvider chains={chains}>
-              <Navbar />
-              <main className="container mx-auto px-4 py-8">
+              {!isHome && <Navbar />}
+              <main className={isHome ? '' : 'container mx-auto px-4 py-8'}>
                 {children}
               </main>
               <Toaster
