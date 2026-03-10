@@ -19,6 +19,7 @@ export default function RootLayout({
 }) {
   const pathname = usePathname();
   const isHome = pathname === '/';
+  const isFullWidth = isHome || pathname === '/artist' || pathname === '/explore' || pathname === '/profile' || pathname === '/trending';
 
   return (
     <html lang="en">
@@ -34,8 +35,8 @@ export default function RootLayout({
         <WagmiConfig config={wagmiConfig}>
           <QueryClientProvider client={queryClient}>
             <RainbowKitProvider chains={chains}>
-              {!isHome && <Navbar />}
-              <main className={isHome ? '' : 'container mx-auto px-4 py-8'}>
+              {!isFullWidth && <Navbar />}
+              <main className={isFullWidth ? '' : 'container mx-auto px-4 py-8'}>
                 {children}
               </main>
               <Toaster
