@@ -1,12 +1,13 @@
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { ethers } = require('ethers');
 const User = require('../models/User');
 
 /**
- * Generate a nonce for wallet authentication
+ * Generate a cryptographically secure nonce for wallet authentication
  */
 function generateNonce() {
-  return Math.floor(Math.random() * 1000000).toString();
+  return crypto.randomBytes(4).toString('hex');
 }
 
 /**
