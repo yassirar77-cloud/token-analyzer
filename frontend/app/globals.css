@@ -56,17 +56,17 @@ h1, h2, h3, h4, h5, h6 {
 
   .btn-gradient {
     background: linear-gradient(115deg, #0049D0 26%, #F2134A 117%);
-    @apply text-white font-semibold py-5 px-16 rounded-full transition-all duration-200 hover:scale-105 relative overflow-hidden;
+    @apply text-white font-semibold py-3 px-8 sm:py-4 sm:px-12 lg:py-5 lg:px-16 rounded-full transition-all duration-200 hover:scale-105 relative overflow-hidden;
     box-shadow: inset -1px -1px 4px rgba(255,255,255,0.25), inset 0 4px 4px rgba(255,255,255,0.25);
   }
 
   .btn-outline {
-    @apply bg-brand-bg border-3 border-white text-white font-semibold py-5 px-16 rounded-full transition-all duration-200 hover:scale-105;
+    @apply bg-brand-bg border-3 border-white text-white font-semibold py-3 px-8 sm:py-4 sm:px-12 lg:py-5 lg:px-16 rounded-full transition-all duration-200 hover:scale-105;
   }
 
   .btn-gradient-sm {
     background: linear-gradient(115deg, #0049D0 26%, #F2134A 117%);
-    @apply text-white font-semibold py-4 px-12 rounded-full transition-all duration-200 hover:scale-105 relative overflow-hidden;
+    @apply text-white font-semibold py-3 px-6 sm:py-4 sm:px-12 rounded-full transition-all duration-200 hover:scale-105 relative overflow-hidden;
     box-shadow: inset -1px -1px 4px rgba(255,255,255,0.25), inset 0 4px 4px rgba(255,255,255,0.25);
   }
 
