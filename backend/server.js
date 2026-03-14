@@ -16,7 +16,18 @@ const app = express();
 
 // Security middleware
 app.use(helmet());
-app.use(cors());
+
+// CORS configuration
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map(o => o.trim())
+  : ['http://localhost:3000'];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -69,10 +80,13 @@ async function startServer() {
     await sequelize.authenticate();
     console.log('✓ Database connection established');
 
-    // Sync models (in development)
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
+    // Sync models
+    if (process.env.NODE_ENV === 'production') {
+      await sequelize.sync();
       console.log('✓ Database models synchronized');
+    } else {
+      await sequelize.sync({ alter: true });
+      console.log('✓ Database models synchronized (dev mode with alter)');
     }
 
     // Start server

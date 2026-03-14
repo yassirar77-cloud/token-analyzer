@@ -9,6 +9,9 @@
     "migrate": "node migrations/run.js",
     "test": "jest --coverage"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "keywords": ["music", "nft", "api", "blockchain"],
   "author": "",
   "license": "MIT",
