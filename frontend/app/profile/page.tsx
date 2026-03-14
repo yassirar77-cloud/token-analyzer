@@ -251,13 +251,13 @@ export default function ProfilePage() {
       <div className="relative h-[350px] sm:h-[400px] lg:h-[480px] w-full overflow-hidden">
         {/* Gradient background */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
           style={{
             background: 'linear-gradient(135deg, #0049D0 0%, #141414 50%, #F2134A 100%)',
             opacity: 0.3,
           }}
         />
-        <div className="absolute inset-0 bg-brand-bg/70" />
+        <div className="absolute inset-0 bg-brand-bg/70 pointer-events-none" />
 
         {/* Radial glow - blue */}
         <div className="absolute left-[10%] top-[40px] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] pointer-events-none">
@@ -275,7 +275,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-[200px] bg-gradient-to-t from-brand-bg to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-[200px] bg-gradient-to-t from-brand-bg to-transparent pointer-events-none" />
       </div>
 
       {/* Navbar */}

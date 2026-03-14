@@ -43,6 +43,11 @@ h1, h2, h3, h4, h5, h6 {
   body {
     @apply bg-brand-bg text-white antialiased;
   }
+
+  /* Prevent 300ms tap delay on mobile */
+  a, button, [role="button"], input, select, textarea, label, summary {
+    touch-action: manipulation;
+  }
 }
 
 @layer components {

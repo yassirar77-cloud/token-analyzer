@@ -450,16 +450,16 @@ export default function ArtistDashboard() {
         <img
           src="/images/artist/hero-bg.jpg"
           alt=""
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         />
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
           style={{
             background: 'radial-gradient(ellipse at center, rgba(20,20,20,0) 0%, rgba(20,20,20,1) 100%)',
             opacity: 0.5,
           }}
         />
-        <div className="absolute bottom-0 left-0 right-0 h-[200px] bg-gradient-to-t from-brand-bg to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-[200px] bg-gradient-to-t from-brand-bg to-transparent pointer-events-none" />
       </div>
 
       {/* Navbar */}
