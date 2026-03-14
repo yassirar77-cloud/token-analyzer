@@ -188,9 +188,9 @@ function Footer() {
               <Link href="/artist" className="hover:opacity-80">Artist</Link>
               <Link href="/profile" className="hover:opacity-80">Profile</Link>
               <span>Connect Wallet</span>
-              <span>Policy</span>
+              <Link href="/privacy" className="hover:opacity-80">Privacy Policy</Link>
             </div>
-            <p>Terms &amp; Condition</p>
+            <Link href="/terms" className="hover:opacity-80">Terms &amp; Conditions</Link>
           </div>
         </div>
       </div>

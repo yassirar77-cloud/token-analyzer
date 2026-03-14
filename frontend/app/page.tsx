@@ -624,9 +624,9 @@ export default function Home() {
               <Link href="/artist" className="hover:opacity-80 transition-opacity">Artist</Link>
               <Link href="/profile" className="hover:opacity-80 transition-opacity">Profile</Link>
               <span className="cursor-pointer hover:opacity-80 transition-opacity">Connect Wallet</span>
-              <span className="cursor-pointer hover:opacity-80 transition-opacity">Policy</span>
+              <Link href="/privacy" className="cursor-pointer hover:opacity-80 transition-opacity">Privacy Policy</Link>
             </div>
-            <p className="font-body font-medium text-base lg:text-lg text-white leading-[30px]">{'Terms & Condition'}</p>
+            <Link href="/terms" className="font-body font-medium text-base lg:text-lg text-white leading-[30px] hover:opacity-80 transition-opacity">{'Terms & Conditions'}</Link>
           </div>
         </div>
 
