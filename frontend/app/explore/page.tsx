@@ -326,7 +326,7 @@ export default function ExplorePage() {
     <div className="bg-brand-bg min-h-screen relative overflow-hidden">
       {/* ===== HERO SECTION ===== */}
       <section className="relative w-full h-[400px] sm:h-[500px] lg:h-[597px]">
-        <div className="absolute inset-0 bg-brand-bg" />
+        <div className="absolute inset-0 bg-brand-bg pointer-events-none" />
 
         {/* Radial glow - blue */}
         <div className="absolute right-[10%] top-[60px] w-[250px] sm:w-[407px] h-[250px] sm:h-[407px] pointer-events-none">

@@ -329,7 +329,7 @@ export default function TrendingPage() {
     <div className="bg-brand-bg min-h-screen relative overflow-hidden">
       {/* ===== HERO SECTION ===== */}
       <section className="relative w-full h-[400px] sm:h-[460px] lg:h-[520px]">
-        <div className="absolute inset-0 bg-brand-bg" />
+        <div className="absolute inset-0 bg-brand-bg pointer-events-none" />
 
         {/* Radial glow - blue */}
         <div className="absolute left-[15%] top-[80px] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] pointer-events-none">

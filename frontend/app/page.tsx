@@ -195,7 +195,7 @@ export default function Home() {
 
       {/* ===== HERO SECTION ===== */}
       <section className="relative w-full min-h-[600px] lg:min-h-[840px]">
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-brand-bg" />
           <div
             className="absolute inset-0 opacity-[0.07]"
@@ -219,7 +219,7 @@ export default function Home() {
         </div>
 
         {/* Navigation */}
-        <nav className="relative z-10 flex items-center justify-between max-w-[1336px] mx-auto px-4 md:px-8 lg:px-[164px] pt-[24px] lg:pt-[39px]">
+        <nav className="relative z-50 flex items-center justify-between max-w-[1336px] mx-auto px-4 md:px-8 lg:px-[164px] pt-[24px] lg:pt-[39px]">
           <span className="font-logo text-[22px] md:text-[30px] text-white whitespace-nowrap">Backstreet Dogs</span>
 
           {/* Desktop nav */}
@@ -243,7 +243,7 @@ export default function Home() {
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden relative z-20 bg-brand-bg/95 backdrop-blur-sm px-4 py-4 flex flex-col gap-4">
+          <div className="md:hidden bg-brand-bg/95 backdrop-blur-sm px-4 py-4 flex flex-col gap-4">
             <Link href="/explore" className="text-white text-lg font-body font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Explore</Link>
             <Link href="/artist" className="text-white text-lg font-body font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Artist</Link>
             <Link href="/profile" className="text-white text-lg font-body font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
@@ -300,7 +300,7 @@ export default function Home() {
           </motion.div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-[80px] bg-brand-bg blur-[22px]" />
+        <div className="absolute bottom-0 left-0 right-0 h-[80px] bg-brand-bg blur-[22px] pointer-events-none" />
       </section>
 
       {/* ===== VALUE PROPOSITION ===== */}
@@ -343,7 +343,7 @@ export default function Home() {
         <div className="absolute left-0 sm:left-5 bottom-0 sm:top-[382px] w-full sm:w-[1558px] h-[229px]">
           <img src="/images/city-bg.svg" alt="" className="w-full h-full object-cover" />
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-[80px] bg-brand-bg blur-[22px]" />
+        <div className="absolute bottom-0 left-0 right-0 h-[80px] bg-brand-bg blur-[22px] pointer-events-none" />
       </section>
 
       {/* ===== STATS BAR ===== */}
@@ -416,9 +416,9 @@ export default function Home() {
       {/* ===== CTA BANNER ===== */}
       <section className="px-4 md:px-8 lg:px-[164px] py-12">
         <div className="relative border-6 border-white rounded-[20px] overflow-hidden min-h-[200px] lg:h-[279px]">
-          <div className="absolute inset-0 bg-brand-bg" />
+          <div className="absolute inset-0 bg-brand-bg pointer-events-none" />
           <div
-            className="absolute inset-0 opacity-10"
+            className="absolute inset-0 opacity-10 pointer-events-none"
             style={{
               backgroundImage: "url('/images/noise-texture-2.png')",
               backgroundSize: '715px 715px',
