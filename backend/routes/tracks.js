@@ -178,35 +178,9 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * GET /api/tracks/:id
- * Get a single track by ID
- */
-router.get('/:id', async (req, res) => {
-  try {
-    const track = await Track.findByPk(req.params.id, {
-      include: [
-        {
-          model: User,
-          as: 'artistUser',
-          attributes: ['id', 'username', 'walletAddress', 'isVerified', 'bio', 'profileImage'],
-        },
-      ],
-    });
-
-    if (!track) {
-      return res.status(404).json({ error: 'Track not found' });
-    }
-
-    res.json(track);
-  } catch (error) {
-    console.error('Error fetching track:', error);
-    res.status(500).json({ error: 'Failed to fetch track' });
-  }
-});
-
-/**
  * GET /api/tracks/:id/stream
  * Stream audio file from IPFS
+ * NOTE: Must be defined before /:id to avoid route shadowing
  */
 router.get('/:id/stream', authenticate, async (req, res) => {
   try {
@@ -257,6 +231,7 @@ router.get('/:id/stream', authenticate, async (req, res) => {
 /**
  * GET /api/tracks/:id/analytics
  * Get analytics for a track (artist only)
+ * NOTE: Must be defined before /:id to avoid route shadowing
  */
 router.get('/:id/analytics', authenticate, requireArtist, async (req, res) => {
   try {
@@ -288,6 +263,33 @@ router.get('/:id/analytics', authenticate, requireArtist, async (req, res) => {
   } catch (error) {
     console.error('Error fetching analytics:', error);
     res.status(500).json({ error: 'Failed to fetch analytics' });
+  }
+});
+
+/**
+ * GET /api/tracks/:id
+ * Get a single track by ID
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    const track = await Track.findByPk(req.params.id, {
+      include: [
+        {
+          model: User,
+          as: 'artistUser',
+          attributes: ['id', 'username', 'walletAddress', 'isVerified', 'bio', 'profileImage'],
+        },
+      ],
+    });
+
+    if (!track) {
+      return res.status(404).json({ error: 'Track not found' });
+    }
+
+    res.json(track);
+  } catch (error) {
+    console.error('Error fetching track:', error);
+    res.status(500).json({ error: 'Failed to fetch track' });
   }
 });
 

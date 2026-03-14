@@ -47,36 +47,9 @@ router.put('/profile', authenticate, async (req, res) => {
 });
 
 /**
- * GET /api/users/:id
- * Get user by ID
- */
-router.get('/:id', async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id, {
-      attributes: { exclude: ['nonce'] },
-      include: [
-        {
-          model: Track,
-          as: 'tracks',
-          attributes: ['id', 'title', 'artist', 'coverImage', 'createdAt'],
-        },
-      ],
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json(user);
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Failed to fetch user' });
-  }
-});
-
-/**
  * GET /api/users/library
  * Get user's purchased tracks
+ * NOTE: Must be defined before /:id to avoid route shadowing
  */
 router.get('/library', authenticate, async (req, res) => {
   try {
@@ -101,6 +74,34 @@ router.get('/library', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Error fetching library:', error);
     res.status(500).json({ error: 'Failed to fetch library' });
+  }
+});
+
+/**
+ * GET /api/users/:id
+ * Get user by ID
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id, {
+      attributes: { exclude: ['nonce'] },
+      include: [
+        {
+          model: Track,
+          as: 'tracks',
+          attributes: ['id', 'title', 'artist', 'coverImage', 'createdAt'],
+        },
+      ],
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Failed to fetch user' });
   }
 });
 
