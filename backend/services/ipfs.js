@@ -1,12 +1,29 @@
 const { create } = require('ipfs-http-client');
 require('dotenv').config();
 
-// Create IPFS client
-const ipfs = create({
-  host: process.env.IPFS_HOST || 'localhost',
-  port: process.env.IPFS_PORT || 5001,
-  protocol: process.env.IPFS_PROTOCOL || 'http',
-});
+// Create IPFS client — supports local node, Infura, or Pinata
+let ipfs;
+
+if (process.env.IPFS_PROJECT_ID && process.env.IPFS_PROJECT_SECRET) {
+  // Infura IPFS (production)
+  const auth = 'Basic ' + Buffer.from(
+    process.env.IPFS_PROJECT_ID + ':' + process.env.IPFS_PROJECT_SECRET
+  ).toString('base64');
+
+  ipfs = create({
+    host: process.env.IPFS_HOST || 'ipfs.infura.io',
+    port: process.env.IPFS_PORT || 5001,
+    protocol: process.env.IPFS_PROTOCOL || 'https',
+    headers: { authorization: auth },
+  });
+} else {
+  // Local IPFS node (development)
+  ipfs = create({
+    host: process.env.IPFS_HOST || 'localhost',
+    port: process.env.IPFS_PORT || 5001,
+    protocol: process.env.IPFS_PROTOCOL || 'http',
+  });
+}
 
 /**
  * Upload a file to IPFS
