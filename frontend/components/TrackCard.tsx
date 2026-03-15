@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Play, Disc } from 'lucide-react';
+import { TrackData } from '@/lib/api';
 
 interface TrackCardProps {
-  track: any;
+  track: TrackData;
 }
 
 export default function TrackCard({ track }: TrackCardProps) {

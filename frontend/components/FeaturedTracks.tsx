@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { trackApi } from '@/lib/api';
+import { trackApi, TrackData } from '@/lib/api';
 import TrackCard from './TrackCard';
 
 export default function FeaturedTracks() {
-  const [tracks, setTracks] = useState([]);
+  const [tracks, setTracks] = useState<TrackData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadTracks();
@@ -14,10 +15,12 @@ export default function FeaturedTracks() {
 
   const loadTracks = async () => {
     try {
+      setError(null);
       const response = await trackApi.getAll({ limit: 8 });
       setTracks(response.data);
-    } catch (error) {
-      console.error('Error loading tracks:', error);
+    } catch (err) {
+      console.error('Error loading tracks:', err);
+      setError('Failed to load tracks.');
     } finally {
       setLoading(false);
     }
@@ -37,6 +40,15 @@ export default function FeaturedTracks() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="text-center text-red-400 py-12">
+        {error}{' '}
+        <button onClick={loadTracks} className="underline hover:text-red-300">Retry</button>
+      </div>
+    );
+  }
+
   if (tracks.length === 0) {
     return (
       <div className="text-center text-gray-400 py-12">
@@ -47,7 +59,7 @@ export default function FeaturedTracks() {
 
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {tracks.map((track: any) => (
+      {tracks.map((track) => (
         <TrackCard key={track.id} track={track} />
       ))}
     </div>

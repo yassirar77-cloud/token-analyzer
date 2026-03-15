@@ -12,9 +12,14 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
   [publicProvider()]
 );
 
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
+if (!projectId) {
+  console.warn('Warning: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set. Wallet connections may fail.');
+}
+
 const { connectors } = getDefaultWallets({
   appName: 'Back Street Dogs',
-  projectId: 'YOUR_PROJECT_ID', // Get from WalletConnect Cloud
+  projectId,
   chains,
 });
 

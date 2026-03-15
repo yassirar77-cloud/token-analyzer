@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { trackApi } from '@/lib/api';
+import { trackApi, TrackData } from '@/lib/api';
 import TrackCard from '@/components/TrackCard';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -86,7 +86,7 @@ function TrendingTrackRow({
   change,
 }: {
   rank: number;
-  track: any;
+  track: TrackData;
   change: 'up' | 'down' | 'same';
 }) {
   const coverUrl = track.coverImage
@@ -288,8 +288,9 @@ type TimePeriod = (typeof TIME_PERIODS)[number];
 // --- Main Page ---
 
 export default function TrendingPage() {
-  const [tracks, setTracks] = useState<any[]>([]);
+  const [tracks, setTracks] = useState<TrackData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('This Week');
 
   useEffect(() => {
@@ -299,13 +300,15 @@ export default function TrendingPage() {
   const loadTrendingData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await trackApi.getAll({ limit: 20 });
       const sorted = [...response.data].sort(
-        (a: any, b: any) => (b.totalStreams || 0) - (a.totalStreams || 0)
+        (a, b) => (b.totalStreams || 0) - (a.totalStreams || 0)
       );
       setTracks(sorted);
-    } catch (error) {
-      console.error('Error loading trending data:', error);
+    } catch (err) {
+      console.error('Error loading trending data:', err);
+      setError('Failed to load trending data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -432,6 +435,16 @@ export default function TrendingPage() {
                 </div>
               ))}
             </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-[60px] lg:py-[80px]">
+              <p className="font-sans text-[18px] text-red-400 mb-[20px]">{error}</p>
+              <button
+                onClick={loadTrendingData}
+                className="btn-gradient-sm !py-[14px] !px-[30px] text-[16px]"
+              >
+                Retry
+              </button>
+            </div>
           ) : tracks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-[60px] lg:py-[80px]">
               <div className="w-[78px] h-[86px] mb-[30px] opacity-30">
@@ -454,7 +467,7 @@ export default function TrendingPage() {
                 <span className="font-sans text-[12px] text-white/30 uppercase w-[120px] text-right">Streams</span>
                 <span className="font-sans text-[12px] text-white/30 uppercase w-[100px] text-right">Price</span>
               </div>
-              {tracks.map((track: any, idx: number) => (
+              {tracks.map((track: TrackData, idx: number) => (
                 <TrendingTrackRow
                   key={track.id}
                   rank={idx + 1}
@@ -512,7 +525,7 @@ export default function TrendingPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-[20px] lg:gap-x-[40px] gap-y-[30px] lg:gap-y-[41px]">
-              {tracks.slice(0, 6).map((track: any) => (
+              {tracks.slice(0, 6).map((track: TrackData) => (
                 <TrackCard key={track.id} track={track} />
               ))}
             </div>

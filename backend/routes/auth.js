@@ -1,13 +1,21 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const User = require('../models/User');
 const { generateNonce, verifySignature, generateToken } = require('../middleware/auth');
+
+// Stricter rate limit for auth endpoints to prevent nonce enumeration
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // 20 requests per window per IP
+  message: { error: 'Too many authentication attempts, please try again later' },
+});
 
 /**
  * GET /api/auth/nonce/:walletAddress
  * Get nonce for wallet authentication
  */
-router.get('/nonce/:walletAddress', async (req, res) => {
+router.get('/nonce/:walletAddress', authLimiter, async (req, res) => {
   try {
     const { walletAddress } = req.params;
 
@@ -41,7 +49,7 @@ router.get('/nonce/:walletAddress', async (req, res) => {
  * POST /api/auth/verify
  * Verify wallet signature and return JWT
  */
-router.post('/verify', async (req, res) => {
+router.post('/verify', authLimiter, async (req, res) => {
   try {
     const { walletAddress, signature } = req.body;
 
