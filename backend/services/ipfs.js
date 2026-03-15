@@ -1,4 +1,4 @@
-const { create } = require('ipfs-http-client');
+const { create } = require('kubo-rpc-client');
 require('dotenv').config();
 
 // Create IPFS client — supports local node, Infura, or Pinata
