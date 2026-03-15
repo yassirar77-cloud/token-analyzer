@@ -1,35 +1,116 @@
+const https = require('https');
 require('dotenv').config();
 
-// kubo-rpc-client is ESM-only, so we use dynamic import()
-let ipfs;
+const INFURA_HOST = process.env.IPFS_HOST || 'ipfs.infura.io';
+const INFURA_PORT = parseInt(process.env.IPFS_PORT) || 5001;
 
-async function getClient() {
-  if (ipfs) return ipfs;
-
-  const { create } = await import('kubo-rpc-client');
-
-  if (process.env.IPFS_PROJECT_ID && process.env.IPFS_PROJECT_SECRET) {
-    // Infura IPFS (production)
-    const auth = 'Basic ' + Buffer.from(
-      process.env.IPFS_PROJECT_ID + ':' + process.env.IPFS_PROJECT_SECRET
-    ).toString('base64');
-
-    ipfs = create({
-      host: process.env.IPFS_HOST || 'ipfs.infura.io',
-      port: process.env.IPFS_PORT || 5001,
-      protocol: process.env.IPFS_PROTOCOL || 'https',
-      headers: { authorization: auth },
-    });
-  } else {
-    // Local IPFS node (development)
-    ipfs = create({
-      host: process.env.IPFS_HOST || 'localhost',
-      port: process.env.IPFS_PORT || 5001,
-      protocol: process.env.IPFS_PROTOCOL || 'http',
-    });
+function getAuth() {
+  const id = process.env.IPFS_PROJECT_ID;
+  const secret = process.env.IPFS_PROJECT_SECRET;
+  if (!id || !secret) {
+    throw new Error('IPFS_PROJECT_ID and IPFS_PROJECT_SECRET must be set');
   }
+  return 'Basic ' + Buffer.from(id + ':' + secret).toString('base64');
+}
 
-  return ipfs;
+/**
+ * Make a multipart/form-data POST to the Infura IPFS API
+ * @param {string} endpoint - API path (e.g. /api/v0/add)
+ * @param {Buffer} body - The multipart body
+ * @param {string} boundary - The multipart boundary string
+ * @returns {Promise<Object>} - Parsed JSON response
+ */
+function infuraRequest(endpoint, body, boundary) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: INFURA_HOST,
+      port: INFURA_PORT,
+      path: endpoint,
+      method: 'POST',
+      headers: {
+        'Authorization': getAuth(),
+        'Content-Type': `multipart/form-data; boundary=${boundary}`,
+        'Content-Length': body.length,
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      const chunks = [];
+      res.on('data', (chunk) => chunks.push(chunk));
+      res.on('end', () => {
+        const responseBody = Buffer.concat(chunks).toString();
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          reject(new Error(`IPFS API error ${res.statusCode}: ${responseBody}`));
+          return;
+        }
+        try {
+          resolve(JSON.parse(responseBody));
+        } catch (e) {
+          reject(new Error(`Failed to parse IPFS response: ${responseBody}`));
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+/**
+ * Make a simple POST to the Infura IPFS API (no body)
+ * @param {string} endpoint - API path with query params
+ * @returns {Promise<Object>} - Parsed JSON response
+ */
+function infuraPost(endpoint) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: INFURA_HOST,
+      port: INFURA_PORT,
+      path: endpoint,
+      method: 'POST',
+      headers: {
+        'Authorization': getAuth(),
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      const chunks = [];
+      res.on('data', (chunk) => chunks.push(chunk));
+      res.on('end', () => {
+        const responseBody = Buffer.concat(chunks).toString();
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          reject(new Error(`IPFS API error ${res.statusCode}: ${responseBody}`));
+          return;
+        }
+        try {
+          resolve(JSON.parse(responseBody));
+        } catch (e) {
+          reject(new Error(`Failed to parse IPFS response: ${responseBody}`));
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+/**
+ * Build a multipart/form-data body for file upload
+ * @param {Buffer} content - File content
+ * @param {string} fileName - File name
+ * @returns {{ body: Buffer, boundary: string }}
+ */
+function buildMultipartBody(content, fileName) {
+  const boundary = '----IPFSBoundary' + Date.now().toString(16);
+  const header = Buffer.from(
+    `--${boundary}\r\n` +
+    `Content-Disposition: form-data; name="file"; filename="${fileName}"\r\n` +
+    `Content-Type: application/octet-stream\r\n\r\n`
+  );
+  const footer = Buffer.from(`\r\n--${boundary}--\r\n`);
+  return { body: Buffer.concat([header, content, footer]), boundary };
 }
 
 /**
@@ -40,14 +121,10 @@ async function getClient() {
  */
 async function uploadToIPFS(fileBuffer, fileName) {
   try {
-    const client = await getClient();
-    const result = await client.add({
-      path: fileName,
-      content: fileBuffer,
-    });
-
-    console.log('File uploaded to IPFS:', result.path);
-    return result.path; // Returns the IPFS hash
+    const { body, boundary } = buildMultipartBody(fileBuffer, fileName);
+    const result = await infuraRequest('/api/v0/add', body, boundary);
+    console.log('File uploaded to IPFS:', result.Hash);
+    return result.Hash;
   } catch (error) {
     console.error('Error uploading to IPFS:', error);
     throw new Error('Failed to upload file to IPFS');
@@ -61,12 +138,11 @@ async function uploadToIPFS(fileBuffer, fileName) {
  */
 async function uploadMetadataToIPFS(metadata) {
   try {
-    const client = await getClient();
-    const metadataString = JSON.stringify(metadata);
-    const result = await client.add(metadataString);
-
-    console.log('Metadata uploaded to IPFS:', result.path);
-    return result.path;
+    const content = Buffer.from(JSON.stringify(metadata));
+    const { body, boundary } = buildMultipartBody(content, 'metadata.json');
+    const result = await infuraRequest('/api/v0/add', body, boundary);
+    console.log('Metadata uploaded to IPFS:', result.Hash);
+    return result.Hash;
   } catch (error) {
     console.error('Error uploading metadata to IPFS:', error);
     throw new Error('Failed to upload metadata to IPFS');
@@ -80,12 +156,33 @@ async function uploadMetadataToIPFS(metadata) {
  */
 async function getFromIPFS(hash) {
   try {
-    const client = await getClient();
-    const chunks = [];
-    for await (const chunk of client.cat(hash)) {
-      chunks.push(chunk);
-    }
-    return Buffer.concat(chunks);
+    const result = await new Promise((resolve, reject) => {
+      const options = {
+        hostname: INFURA_HOST,
+        port: INFURA_PORT,
+        path: `/api/v0/cat?arg=${encodeURIComponent(hash)}`,
+        method: 'POST',
+        headers: {
+          'Authorization': getAuth(),
+        },
+      };
+
+      const req = https.request(options, (res) => {
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          const chunks = [];
+          res.on('data', (chunk) => chunks.push(chunk));
+          res.on('end', () => reject(new Error(`IPFS API error ${res.statusCode}: ${Buffer.concat(chunks).toString()}`)));
+          return;
+        }
+        const chunks = [];
+        res.on('data', (chunk) => chunks.push(chunk));
+        res.on('end', () => resolve(Buffer.concat(chunks)));
+      });
+
+      req.on('error', reject);
+      req.end();
+    });
+    return result;
   } catch (error) {
     console.error('Error retrieving from IPFS:', error);
     throw new Error('Failed to retrieve file from IPFS');
@@ -98,8 +195,7 @@ async function getFromIPFS(hash) {
  */
 async function pinToIPFS(hash) {
   try {
-    const client = await getClient();
-    await client.pin.add(hash);
+    await infuraPost(`/api/v0/pin/add?arg=${encodeURIComponent(hash)}`);
     console.log('Pinned to IPFS:', hash);
   } catch (error) {
     console.error('Error pinning to IPFS:', error);
