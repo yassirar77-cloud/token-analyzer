@@ -1,28 +1,35 @@
-const { create } = require('kubo-rpc-client');
 require('dotenv').config();
 
-// Create IPFS client — supports local node, Infura, or Pinata
+// kubo-rpc-client is ESM-only, so we use dynamic import()
 let ipfs;
 
-if (process.env.IPFS_PROJECT_ID && process.env.IPFS_PROJECT_SECRET) {
-  // Infura IPFS (production)
-  const auth = 'Basic ' + Buffer.from(
-    process.env.IPFS_PROJECT_ID + ':' + process.env.IPFS_PROJECT_SECRET
-  ).toString('base64');
+async function getClient() {
+  if (ipfs) return ipfs;
 
-  ipfs = create({
-    host: process.env.IPFS_HOST || 'ipfs.infura.io',
-    port: process.env.IPFS_PORT || 5001,
-    protocol: process.env.IPFS_PROTOCOL || 'https',
-    headers: { authorization: auth },
-  });
-} else {
-  // Local IPFS node (development)
-  ipfs = create({
-    host: process.env.IPFS_HOST || 'localhost',
-    port: process.env.IPFS_PORT || 5001,
-    protocol: process.env.IPFS_PROTOCOL || 'http',
-  });
+  const { create } = await import('kubo-rpc-client');
+
+  if (process.env.IPFS_PROJECT_ID && process.env.IPFS_PROJECT_SECRET) {
+    // Infura IPFS (production)
+    const auth = 'Basic ' + Buffer.from(
+      process.env.IPFS_PROJECT_ID + ':' + process.env.IPFS_PROJECT_SECRET
+    ).toString('base64');
+
+    ipfs = create({
+      host: process.env.IPFS_HOST || 'ipfs.infura.io',
+      port: process.env.IPFS_PORT || 5001,
+      protocol: process.env.IPFS_PROTOCOL || 'https',
+      headers: { authorization: auth },
+    });
+  } else {
+    // Local IPFS node (development)
+    ipfs = create({
+      host: process.env.IPFS_HOST || 'localhost',
+      port: process.env.IPFS_PORT || 5001,
+      protocol: process.env.IPFS_PROTOCOL || 'http',
+    });
+  }
+
+  return ipfs;
 }
 
 /**
@@ -33,7 +40,8 @@ if (process.env.IPFS_PROJECT_ID && process.env.IPFS_PROJECT_SECRET) {
  */
 async function uploadToIPFS(fileBuffer, fileName) {
   try {
-    const result = await ipfs.add({
+    const client = await getClient();
+    const result = await client.add({
       path: fileName,
       content: fileBuffer,
     });
@@ -53,8 +61,9 @@ async function uploadToIPFS(fileBuffer, fileName) {
  */
 async function uploadMetadataToIPFS(metadata) {
   try {
+    const client = await getClient();
     const metadataString = JSON.stringify(metadata);
-    const result = await ipfs.add(metadataString);
+    const result = await client.add(metadataString);
 
     console.log('Metadata uploaded to IPFS:', result.path);
     return result.path;
@@ -71,8 +80,9 @@ async function uploadMetadataToIPFS(metadata) {
  */
 async function getFromIPFS(hash) {
   try {
+    const client = await getClient();
     const chunks = [];
-    for await (const chunk of ipfs.cat(hash)) {
+    for await (const chunk of client.cat(hash)) {
       chunks.push(chunk);
     }
     return Buffer.concat(chunks);
@@ -88,7 +98,8 @@ async function getFromIPFS(hash) {
  */
 async function pinToIPFS(hash) {
   try {
-    await ipfs.pin.add(hash);
+    const client = await getClient();
+    await client.pin.add(hash);
     console.log('Pinned to IPFS:', hash);
   } catch (error) {
     console.error('Error pinning to IPFS:', error);
