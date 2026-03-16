@@ -186,7 +186,7 @@ function Footer() {
       <div className="gradient-divider my-[20px] lg:my-[30px]" />
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-[40px]">
         <p className="font-sans text-[14px] sm:text-[16px] lg:text-[18px] text-white leading-[30px] text-center sm:text-left">
-          Copyright 2025. All right are Reserved. Backstreet Dogs
+          Copyright {new Date().getFullYear()}. All rights reserved. Backstreet Dogs
         </p>
         <div className="flex gap-[16px] items-center">
           <div className="flex gap-[19px] items-center">

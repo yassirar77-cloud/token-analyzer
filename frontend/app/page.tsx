@@ -633,7 +633,7 @@ export default function Home() {
         <div className="gradient-divider my-8" />
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="font-body text-sm sm:text-base lg:text-lg text-white leading-[30px] text-center sm:text-left">Copyright 2025. All right are Reserved. Backstreet Dogs</p>
+          <p className="font-body text-sm sm:text-base lg:text-lg text-white leading-[30px] text-center sm:text-left">Copyright {new Date().getFullYear()}. All rights reserved. Backstreet Dogs</p>
           <div className="flex gap-4 items-center">
             <a href="#" className="w-10 h-10 hover:opacity-80 transition-opacity">
               <img src="/images/social-x.svg" alt="X" className="w-full h-full" />

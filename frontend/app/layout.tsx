@@ -9,8 +9,14 @@ import { Toaster } from 'react-hot-toast';
 import { wagmiConfig, chains } from '@/lib/wagmi';
 import Navbar from '@/components/Navbar';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 const queryClient = new QueryClient();
+
+function AuthGate({ children }: { children: React.ReactNode }) {
+  useAuth();
+  return <>{children}</>;
+}
 
 export default function RootLayout({
   children,
@@ -36,10 +42,12 @@ export default function RootLayout({
         <WagmiConfig config={wagmiConfig}>
           <QueryClientProvider client={queryClient}>
             <RainbowKitProvider chains={chains}>
-              {!isFullWidth && <Navbar />}
-              <main className={isFullWidth ? '' : 'container mx-auto px-4 py-8'}>
-                {children}
-              </main>
+              <AuthGate>
+                {!isFullWidth && <Navbar />}
+                <main className={isFullWidth ? '' : 'container mx-auto px-4 py-8'}>
+                  {children}
+                </main>
+              </AuthGate>
               <Toaster
                 position="top-right"
                 toastOptions={{
