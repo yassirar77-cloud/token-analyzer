@@ -14,6 +14,12 @@ const trackRoutes = require('./routes/tracks');
 
 const app = express();
 
+// Validate required environment variables at startup
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is required');
+  process.exit(1);
+}
+
 // Security middleware
 app.use(helmet());
 

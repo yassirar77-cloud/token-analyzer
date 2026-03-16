@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const Joi = require('joi');
 const { Op } = require('sequelize');
 const Track = require('../models/Track');
 const User = require('../models/User');
@@ -8,6 +9,21 @@ const Purchase = require('../models/Purchase');
 const StreamingAnalytics = require('../models/StreamingAnalytics');
 const { authenticate, requireArtist } = require('../middleware/auth');
 const { uploadToIPFS, uploadMetadataToIPFS, getFromIPFS } = require('../services/ipfs');
+
+// Validation schemas
+const createTrackSchema = Joi.object({
+  trackId: Joi.number().integer().required(),
+  title: Joi.string().min(1).max(200).required(),
+  artist: Joi.string().min(1).max(200).required(),
+  description: Joi.string().max(5000).allow('', null),
+  genre: Joi.string().max(100).allow('', null),
+  duration: Joi.number().integer().min(0).allow(null),
+  ipfsHash: Joi.string().required(),
+  coverImage: Joi.string().allow('', null),
+  streamingPrice: Joi.string().allow('', null),
+  nftPrice: Joi.string().allow('', null),
+  maxEditions: Joi.number().integer().min(1).max(10000).required(),
+});
 
 // Configure multer for file uploads
 const upload = multer({
@@ -94,33 +110,14 @@ router.post('/upload', authenticate, requireArtist, upload.fields([
  */
 router.post('/', authenticate, requireArtist, async (req, res) => {
   try {
-    const {
-      trackId,
-      title,
-      artist,
-      description,
-      genre,
-      duration,
-      ipfsHash,
-      coverImage,
-      streamingPrice,
-      nftPrice,
-      maxEditions,
-    } = req.body;
+    const { error, value } = createTrackSchema.validate(req.body, { stripUnknown: true });
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
 
     const track = await Track.create({
-      trackId,
+      ...value,
       artistId: req.user.id,
-      title,
-      artist,
-      description,
-      genre,
-      duration,
-      ipfsHash,
-      coverImage,
-      streamingPrice,
-      nftPrice,
-      maxEditions,
     });
 
     res.status(201).json(track);
@@ -190,17 +187,20 @@ router.get('/:id/stream', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'Track not found' });
     }
 
-    // Check if user has access (either purchased or is the artist)
-    const hasPurchase = await Purchase.findOne({
-      where: {
-        userId: req.user.id,
-        trackId: track.id,
-        purchaseType: 'streaming',
-      },
-    });
+    // Check if user has access (either purchased or is the artist) BEFORE fetching
+    const isArtist = track.artistId === req.user.id;
+    if (!isArtist) {
+      const hasPurchase = await Purchase.findOne({
+        where: {
+          userId: req.user.id,
+          trackId: track.id,
+          purchaseType: 'streaming',
+        },
+      });
 
-    if (!hasPurchase && track.artistId !== req.user.id) {
-      return res.status(403).json({ error: 'You do not have access to this track' });
+      if (!hasPurchase) {
+        return res.status(403).json({ error: 'You do not have access to this track' });
+      }
     }
 
     // Get file from IPFS
@@ -215,13 +215,16 @@ router.get('/:id/stream', authenticate, async (req, res) => {
 
     res.send(audioBuffer);
 
-    // Record streaming analytics
-    await StreamingAnalytics.create({
+    // Record streaming analytics after successful response (fire-and-forget)
+    StreamingAnalytics.create({
       userId: req.user.id,
       trackId: track.id,
       duration: track.duration || 0,
       completed: false,
-    });
+    }).then(() => {
+      // Increment totalStreams counter
+      return Track.increment('totalStreams', { where: { id: track.id } });
+    }).catch(err => console.error('Error recording stream analytics:', err));
   } catch (error) {
     console.error('Error streaming track:', error);
     res.status(500).json({ error: 'Failed to stream track' });

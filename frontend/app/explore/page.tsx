@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Search, ChevronDown, X, Menu } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { trackApi } from '@/lib/api';
+import { trackApi, TrackData } from '@/lib/api';
 import TrackCard from '@/components/TrackCard';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -225,7 +225,7 @@ function TrackRow({
   track,
 }: {
   index: number;
-  track: any;
+  track: TrackData;
 }) {
   const coverUrl = track.coverImage
     ? `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}${track.coverImage}`
@@ -262,8 +262,9 @@ const sortOptions = [
 ];
 
 export default function ExplorePage() {
-  const [tracks, setTracks] = useState([]);
+  const [tracks, setTracks] = useState<TrackData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
@@ -276,7 +277,8 @@ export default function ExplorePage() {
   const loadTracks = async () => {
     try {
       setLoading(true);
-      const params: any = { limit: 50 };
+      setError(null);
+      const params: Record<string, string | number> = { limit: 50 };
 
       if (selectedGenre !== 'All') {
         params.genre = selectedGenre;
@@ -290,20 +292,21 @@ export default function ExplorePage() {
       let fetchedTracks = response.data;
 
       if (sortBy === 'popular') {
-        fetchedTracks.sort((a: any, b: any) => b.totalStreams - a.totalStreams);
+        fetchedTracks.sort((a, b) => b.totalStreams - a.totalStreams);
       } else if (sortBy === 'price-low') {
-        fetchedTracks.sort((a: any, b: any) =>
+        fetchedTracks.sort((a, b) =>
           parseFloat(a.streamingPrice || '0') - parseFloat(b.streamingPrice || '0')
         );
       } else if (sortBy === 'price-high') {
-        fetchedTracks.sort((a: any, b: any) =>
+        fetchedTracks.sort((a, b) =>
           parseFloat(b.streamingPrice || '0') - parseFloat(a.streamingPrice || '0')
         );
       }
 
       setTracks(fetchedTracks);
-    } catch (error) {
-      console.error('Error loading tracks:', error);
+    } catch (err) {
+      console.error('Error loading tracks:', err);
+      setError('Failed to load tracks. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -501,6 +504,16 @@ export default function ExplorePage() {
                 </div>
               ))}
             </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-[60px] lg:py-[100px]">
+              <p className="font-sans text-[18px] text-red-400 mb-[20px]">{error}</p>
+              <button
+                onClick={loadTracks}
+                className="btn-gradient-sm !py-[14px] !px-[30px] text-[16px]"
+              >
+                Retry
+              </button>
+            </div>
           ) : tracks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-[60px] lg:py-[100px]">
               <div className="w-[78px] h-[86px] mb-[30px] opacity-30">
@@ -518,7 +531,7 @@ export default function ExplorePage() {
             </div>
           ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-[20px] lg:gap-x-[40px] gap-y-[30px] lg:gap-y-[41px]">
-              {tracks.map((track: any) => (
+              {tracks.map((track: TrackData) => (
                 <TrackCard key={track.id} track={track} />
               ))}
             </div>

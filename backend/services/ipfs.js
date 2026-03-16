@@ -4,11 +4,17 @@ require('dotenv').config();
 const INFURA_HOST = process.env.IPFS_HOST || 'ipfs.infura.io';
 const INFURA_PORT = parseInt(process.env.IPFS_PORT) || 5001;
 
+let _ipfsConfigWarned = false;
+
 function getAuth() {
   const id = process.env.IPFS_PROJECT_ID;
   const secret = process.env.IPFS_PROJECT_SECRET;
   if (!id || !secret) {
-    throw new Error('IPFS_PROJECT_ID and IPFS_PROJECT_SECRET must be set');
+    if (!_ipfsConfigWarned) {
+      console.warn('Warning: IPFS_PROJECT_ID and IPFS_PROJECT_SECRET are not set. IPFS operations will fail.');
+      _ipfsConfigWarned = true;
+    }
+    throw new Error('IPFS credentials not configured. Set IPFS_PROJECT_ID and IPFS_PROJECT_SECRET.');
   }
   return 'Basic ' + Buffer.from(id + ':' + secret).toString('base64');
 }

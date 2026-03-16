@@ -1,9 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const Joi = require('joi');
 const User = require('../models/User');
 const Track = require('../models/Track');
 const Purchase = require('../models/Purchase');
 const { authenticate } = require('../middleware/auth');
+
+const updateProfileSchema = Joi.object({
+  username: Joi.string().min(1).max(50).allow('', null),
+  email: Joi.string().email().allow('', null),
+  bio: Joi.string().max(1000).allow('', null),
+  profileImage: Joi.string().uri().max(500).allow('', null),
+  isArtist: Joi.boolean(),
+}).min(1);
 
 /**
  * GET /api/users/profile
@@ -28,16 +37,12 @@ router.get('/profile', authenticate, async (req, res) => {
  */
 router.put('/profile', authenticate, async (req, res) => {
   try {
-    const { username, email, bio, profileImage, isArtist } = req.body;
+    const { error, value } = updateProfileSchema.validate(req.body, { stripUnknown: true });
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
 
-    const updates = {};
-    if (username !== undefined) updates.username = username;
-    if (email !== undefined) updates.email = email;
-    if (bio !== undefined) updates.bio = bio;
-    if (profileImage !== undefined) updates.profileImage = profileImage;
-    if (isArtist !== undefined) updates.isArtist = isArtist;
-
-    await req.user.update(updates);
+    await req.user.update(value);
 
     res.json(req.user);
   } catch (error) {
