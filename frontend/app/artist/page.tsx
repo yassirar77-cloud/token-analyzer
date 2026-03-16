@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { ChevronDown, Menu, X as XIcon } from 'lucide-react';
-import { trackApi, TrackData } from '@/lib/api';
+import { trackApi, userApi, TrackData, UserProfile } from '@/lib/api';
 import toast from 'react-hot-toast';
 import TrackCard from '@/components/TrackCard';
 import Link from 'next/link';
@@ -197,7 +197,7 @@ function Footer() {
       <div className="gradient-divider my-[20px] lg:my-[30px]" />
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-[40px]">
         <p className="font-sans text-[14px] sm:text-[16px] lg:text-[18px] text-white leading-[30px] text-center sm:text-left">
-          Copyright 2025. All right are Reserved. Backstreet Dogs
+          Copyright {new Date().getFullYear()}. All rights reserved. Backstreet Dogs
         </p>
         <div className="flex gap-[16px] items-center">
           <div className="flex gap-[19px] items-center">
@@ -396,6 +396,7 @@ export default function ArtistDashboard() {
   const { address, isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState<Tab>('Earning');
   const [tracks, setTracks] = useState<TrackData[]>([]);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [analytics, setAnalytics] = useState({
     totalStreams: 0,
     totalRevenue: '0',
@@ -415,6 +416,14 @@ export default function ArtistDashboard() {
 
   const loadArtistData = async () => {
     try {
+      // Load profile
+      try {
+        const profileRes = await userApi.getProfile();
+        setProfile(profileRes.data);
+      } catch {
+        // Not authenticated yet — profile will be null
+      }
+
       const response = await trackApi.getAll({ artistId: address });
       setTracks(response.data);
 
@@ -423,10 +432,14 @@ export default function ArtistDashboard() {
       let totalSales = 0;
 
       for (const track of response.data) {
-        const a = await trackApi.getAnalytics(track.id);
-        totalStreams += a.data.streams || 0;
-        totalRevenue += parseFloat(a.data.revenue || '0');
-        totalSales += a.data.purchases || 0;
+        try {
+          const a = await trackApi.getAnalytics(track.id);
+          totalStreams += a.data.streams || 0;
+          totalRevenue += parseFloat(a.data.revenue || '0');
+          totalSales += a.data.purchases || 0;
+        } catch {
+          // Analytics may require auth — skip if not available
+        }
       }
 
       setAnalytics({
@@ -469,17 +482,17 @@ export default function ArtistDashboard() {
       <div className="relative px-4 md:px-8 lg:px-[164px] -mt-[100px] sm:-mt-[140px] lg:-mt-[186px] z-10">
         <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-8">
           <img
-            src="/images/artist/avatar.png"
+            src={profile?.profileImage || '/images/artist/avatar.png'}
             alt="Artist avatar"
             className="w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] lg:w-[182px] lg:h-[182px] rounded-full object-cover shrink-0"
           />
           <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between flex-1 gap-4 text-center sm:text-left w-full">
             <div className="flex flex-col gap-[12px] sm:gap-[20px]">
               <p className="font-sans font-normal text-[14px] sm:text-[16px] leading-[30px] text-white">
-                GUITARIST
+                {profile?.isArtist ? 'ARTIST' : 'LISTENER'}
               </p>
               <h1 className="font-display text-[20px] sm:text-[24px] text-white">
-                Jasmine Pennifold
+                {profile?.username || address?.slice(0, 6) + '...' + address?.slice(-4) || 'Unknown'}
               </h1>
             </div>
             <button
@@ -599,15 +612,15 @@ export default function ArtistDashboard() {
               {/* ===== BIO TAB ===== */}
               {activeTab === 'Bio' && (
                 <div className="flex flex-col gap-[20px] sm:gap-[30px]">
-                  <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[26px]">
-                    Jasmine Pennifold is a London-based guitarist known for her genre-defying approach to music. Blending jazz improvisation with rock energy, world music textures, and electronic production, she creates a sound that is uniquely her own.
-                  </p>
-                  <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[26px]">
-                    With over a decade of performing experience across venues in London, Paris, and beyond, Jasmine has built a reputation for captivating live performances and meticulously crafted studio recordings. Her work spans commercial pop arrangements to ambient soundscapes, always anchored by her virtuosic guitar work.
-                  </p>
-                  <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[26px]">
-                    Jasmine joined Backstreet Dogs to connect directly with fans and maintain full ownership of her music. She believes in a future where artists earn what they deserve — no middlemen, no gatekeepers.
-                  </p>
+                  {profile?.bio ? (
+                    <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[26px]">
+                      {profile.bio}
+                    </p>
+                  ) : (
+                    <p className="font-sans text-[14px] sm:text-[16px] text-white/50 leading-[26px]">
+                      No bio yet. Update your profile to add a bio.
+                    </p>
+                  )}
                 </div>
               )}
 
