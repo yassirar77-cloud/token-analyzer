@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { trackApi } from '@/lib/api';
+import { trackApi, TrackData } from '@/lib/api';
 import TrackCard from '@/components/TrackCard';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -208,7 +208,7 @@ type Tab = (typeof TABS)[number];
 export default function ProfilePage() {
   const { address, isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState<Tab>('Collection');
-  const [collection, setCollection] = useState([]);
+  const [collection, setCollection] = useState<TrackData[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     tracksOwned: 0,

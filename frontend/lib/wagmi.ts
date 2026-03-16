@@ -12,8 +12,8 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
   [publicProvider()]
 );
 
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
-if (!projectId) {
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'PLACEHOLDER_FOR_BUILD';
+if (projectId === 'PLACEHOLDER_FOR_BUILD') {
   console.warn('Warning: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set. Wallet connections may fail.');
 }
 

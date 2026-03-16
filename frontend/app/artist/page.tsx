@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { ChevronDown, Menu, X as XIcon } from 'lucide-react';
-import { trackApi } from '@/lib/api';
+import { trackApi, TrackData } from '@/lib/api';
 import toast from 'react-hot-toast';
 import TrackCard from '@/components/TrackCard';
 import Link from 'next/link';
@@ -395,7 +395,7 @@ type Tab = (typeof TABS)[number];
 export default function ArtistDashboard() {
   const { address, isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState<Tab>('Earning');
-  const [tracks, setTracks] = useState([]);
+  const [tracks, setTracks] = useState<TrackData[]>([]);
   const [analytics, setAnalytics] = useState({
     totalStreams: 0,
     totalRevenue: '0',
