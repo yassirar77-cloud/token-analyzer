@@ -495,13 +495,31 @@ export default function ArtistDashboard() {
                 {profile?.username || address?.slice(0, 6) + '...' + address?.slice(-4) || 'Unknown'}
               </h1>
             </div>
-            <button
-              onClick={() => setActiveTab('Upload')}
-              className="btn-gradient-sm !py-[16px] sm:!py-[21px] !px-[30px] flex items-center gap-[10px] text-[16px] sm:text-[18px]"
-            >
-              Upload Track
-              <img src="/images/artist/icon-arrow-right.png" alt="" className="w-[10px] h-[17px]" />
-            </button>
+            {profile?.isArtist ? (
+              <button
+                onClick={() => setActiveTab('Upload')}
+                className="btn-gradient-sm !py-[16px] sm:!py-[21px] !px-[30px] flex items-center gap-[10px] text-[16px] sm:text-[18px]"
+              >
+                Upload Track
+                <img src="/images/artist/icon-arrow-right.png" alt="" className="w-[10px] h-[17px]" />
+              </button>
+            ) : profile && (
+              <button
+                onClick={async () => {
+                  try {
+                    await userApi.updateProfile({ isArtist: true });
+                    toast.success('You are now an artist! Reloading...');
+                    setTimeout(() => window.location.reload(), 1000);
+                  } catch {
+                    toast.error('Failed to register as artist.');
+                  }
+                }}
+                className="btn-gradient-sm !py-[16px] sm:!py-[21px] !px-[30px] flex items-center gap-[10px] text-[16px] sm:text-[18px]"
+              >
+                Become an Artist
+                <img src="/images/artist/icon-arrow-right.png" alt="" className="w-[10px] h-[17px]" />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -511,68 +529,47 @@ export default function ArtistDashboard() {
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-[86px] items-start w-full max-w-[1172px]">
           {/* Left Sidebar - Artist Details */}
           <div className="flex flex-row lg:flex-col gap-6 lg:gap-[48px] shrink-0 overflow-x-auto lg:overflow-visible w-full lg:w-auto pb-4 lg:pb-0">
-            {/* Location */}
-            <div className="flex flex-col gap-[14px] min-w-[140px] lg:w-[160px]">
+            {/* Wallet */}
+            <div className="flex flex-col gap-[14px] min-w-[140px] lg:w-[200px]">
               <p className="font-sans text-[14px] sm:text-[16px] text-white/50 leading-[30px] uppercase">
-                Location
+                Wallet
               </p>
-              <div className="flex items-center gap-[10px]">
-                <img src="/images/artist/icon-flag.png" alt="" className="w-[19px] h-[13px]" />
-                <p className="font-sans font-medium text-[18px] sm:text-[24px] text-white leading-[30px] whitespace-nowrap">
-                  London, Uk
-                </p>
-              </div>
+              <p className="font-sans font-medium text-[14px] sm:text-[16px] text-white leading-[30px] break-all">
+                {address || 'Not connected'}
+              </p>
             </div>
 
-            {/* Languages */}
+            {/* Role */}
             <div className="flex flex-col gap-[14px] min-w-[140px]">
-              <p className="font-sans text-[14px] sm:text-[16px] text-white/50 leading-[30px]">
-                LANGUAGES
+              <p className="font-sans text-[14px] sm:text-[16px] text-white/50 leading-[30px] uppercase">
+                Role
               </p>
               <div className="flex gap-[6px] flex-wrap">
-                <TagPill>English</TagPill>
-                <TagPill>French</TagPill>
+                <TagPill>{profile?.isArtist ? 'Artist' : 'Listener'}</TagPill>
+                {profile?.isVerified && <TagPill>Verified</TagPill>}
               </div>
             </div>
 
-            {/* Instruments */}
-            <div className="flex flex-col gap-[14px] min-w-[200px]">
-              <p className="font-sans text-[14px] sm:text-[16px] text-white/50 leading-[30px]">
-                INSTRUMENTS
-              </p>
-              <div className="flex flex-col gap-[6px]">
-                <div className="flex gap-[6px] flex-wrap">
-                  <TagPill>Electric Guitar</TagPill>
-                  <TagPill>Acoustic Guitar</TagPill>
-                </div>
-                <div className="flex gap-[6px] flex-wrap">
-                  <TagPill>Banjo</TagPill>
-                  <TagPill>Mandolin</TagPill>
-                </div>
+            {/* Email */}
+            {profile?.email && (
+              <div className="flex flex-col gap-[14px] min-w-[140px]">
+                <p className="font-sans text-[14px] sm:text-[16px] text-white/50 leading-[30px] uppercase">
+                  Email
+                </p>
+                <p className="font-sans font-medium text-[14px] sm:text-[16px] text-white leading-[30px]">
+                  {profile.email}
+                </p>
               </div>
-            </div>
+            )}
 
-            {/* Genres */}
-            <div className="flex flex-col gap-[14px] min-w-[200px]">
-              <p className="font-sans text-[14px] sm:text-[16px] text-white/50 leading-[30px]">
-                GENRES
+            {/* Stats */}
+            <div className="flex flex-col gap-[14px] min-w-[140px]">
+              <p className="font-sans text-[14px] sm:text-[16px] text-white/50 leading-[30px] uppercase">
+                Stats
               </p>
-              <div className="flex flex-col gap-[6px]">
-                <div className="flex gap-[6px] flex-wrap">
-                  <TagPill>Jazz</TagPill>
-                  <TagPill>Pop</TagPill>
-                  <TagPill>Rock</TagPill>
-                  <TagPill>World</TagPill>
-                </div>
-                <div className="flex gap-[6px] flex-wrap">
-                  <TagPill>Commercial</TagPill>
-                  <TagPill>EDM</TagPill>
-                  <TagPill>Folk</TagPill>
-                </div>
-                <div className="flex gap-[6px] flex-wrap">
-                  <TagPill>Funk</TagPill>
-                  <TagPill>Ambient</TagPill>
-                </div>
+              <div className="flex gap-[6px] flex-wrap">
+                <TagPill>{analytics.totalTracks} Tracks</TagPill>
+                <TagPill>{analytics.totalStreams} Streams</TagPill>
               </div>
             </div>
           </div>
@@ -703,12 +700,34 @@ export default function ArtistDashboard() {
 
               {/* ===== UPLOAD TAB ===== */}
               {activeTab === 'Upload' && (
-                <UploadForm
-                  onSuccess={() => {
-                    loadArtistData();
-                    setActiveTab('Tracks');
-                  }}
-                />
+                profile?.isArtist ? (
+                  <UploadForm
+                    onSuccess={() => {
+                      loadArtistData();
+                      setActiveTab('Tracks');
+                    }}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-[40px] sm:py-[60px]">
+                    <p className="font-sans text-[16px] text-white/50 mb-[20px]">
+                      You need artist privileges to upload tracks.
+                    </p>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await userApi.updateProfile({ isArtist: true });
+                          toast.success('You are now an artist! Reloading...');
+                          setTimeout(() => window.location.reload(), 1000);
+                        } catch {
+                          toast.error('Failed to register as artist.');
+                        }
+                      }}
+                      className="btn-gradient-sm !py-[14px] !px-[30px] text-[16px]"
+                    >
+                      Become an Artist
+                    </button>
+                  </div>
+                )
               )}
             </div>
           </div>
