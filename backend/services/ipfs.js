@@ -1,105 +1,20 @@
 const https = require('https');
 require('dotenv').config();
 
-const INFURA_HOST = process.env.IPFS_HOST || 'ipfs.infura.io';
-const INFURA_PORT = parseInt(process.env.IPFS_PORT) || 5001;
+const PINATA_API_URL = 'api.pinata.cloud';
 
-let _ipfsConfigWarned = false;
+let _pinataConfigWarned = false;
 
-function getAuth() {
-  const id = process.env.IPFS_PROJECT_ID;
-  const secret = process.env.IPFS_PROJECT_SECRET;
-  if (!id || !secret) {
-    if (!_ipfsConfigWarned) {
-      console.warn('Warning: IPFS_PROJECT_ID and IPFS_PROJECT_SECRET are not set. IPFS operations will fail.');
-      _ipfsConfigWarned = true;
+function getPinataJWT() {
+  const jwt = process.env.PINATA_JWT;
+  if (!jwt) {
+    if (!_pinataConfigWarned) {
+      console.warn('Warning: PINATA_JWT is not set. IPFS operations will fail.');
+      _pinataConfigWarned = true;
     }
-    throw new Error('IPFS credentials not configured. Set IPFS_PROJECT_ID and IPFS_PROJECT_SECRET.');
+    throw new Error('Pinata credentials not configured. Set PINATA_JWT environment variable.');
   }
-  return 'Basic ' + Buffer.from(id + ':' + secret).toString('base64');
-}
-
-/**
- * Make a multipart/form-data POST to the Infura IPFS API
- * @param {string} endpoint - API path (e.g. /api/v0/add)
- * @param {Buffer} body - The multipart body
- * @param {string} boundary - The multipart boundary string
- * @returns {Promise<Object>} - Parsed JSON response
- */
-function infuraRequest(endpoint, body, boundary) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: INFURA_HOST,
-      port: INFURA_PORT,
-      path: endpoint,
-      method: 'POST',
-      headers: {
-        'Authorization': getAuth(),
-        'Content-Type': `multipart/form-data; boundary=${boundary}`,
-        'Content-Length': body.length,
-      },
-    };
-
-    const req = https.request(options, (res) => {
-      const chunks = [];
-      res.on('data', (chunk) => chunks.push(chunk));
-      res.on('end', () => {
-        const responseBody = Buffer.concat(chunks).toString();
-        if (res.statusCode < 200 || res.statusCode >= 300) {
-          reject(new Error(`IPFS API error ${res.statusCode}: ${responseBody}`));
-          return;
-        }
-        try {
-          resolve(JSON.parse(responseBody));
-        } catch (e) {
-          reject(new Error(`Failed to parse IPFS response: ${responseBody}`));
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.write(body);
-    req.end();
-  });
-}
-
-/**
- * Make a simple POST to the Infura IPFS API (no body)
- * @param {string} endpoint - API path with query params
- * @returns {Promise<Object>} - Parsed JSON response
- */
-function infuraPost(endpoint) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: INFURA_HOST,
-      port: INFURA_PORT,
-      path: endpoint,
-      method: 'POST',
-      headers: {
-        'Authorization': getAuth(),
-      },
-    };
-
-    const req = https.request(options, (res) => {
-      const chunks = [];
-      res.on('data', (chunk) => chunks.push(chunk));
-      res.on('end', () => {
-        const responseBody = Buffer.concat(chunks).toString();
-        if (res.statusCode < 200 || res.statusCode >= 300) {
-          reject(new Error(`IPFS API error ${res.statusCode}: ${responseBody}`));
-          return;
-        }
-        try {
-          resolve(JSON.parse(responseBody));
-        } catch (e) {
-          reject(new Error(`Failed to parse IPFS response: ${responseBody}`));
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.end();
-  });
+  return jwt;
 }
 
 /**
@@ -109,7 +24,7 @@ function infuraPost(endpoint) {
  * @returns {{ body: Buffer, boundary: string }}
  */
 function buildMultipartBody(content, fileName) {
-  const boundary = '----IPFSBoundary' + Date.now().toString(16);
+  const boundary = '----PinataBoundary' + Date.now().toString(16);
   const header = Buffer.from(
     `--${boundary}\r\n` +
     `Content-Disposition: form-data; name="file"; filename="${fileName}"\r\n` +
@@ -120,7 +35,7 @@ function buildMultipartBody(content, fileName) {
 }
 
 /**
- * Upload a file to IPFS
+ * Upload a file to IPFS via Pinata
  * @param {Buffer} fileBuffer - File buffer
  * @param {string} fileName - Original file name
  * @returns {Promise<string>} - IPFS hash
@@ -128,9 +43,43 @@ function buildMultipartBody(content, fileName) {
 async function uploadToIPFS(fileBuffer, fileName) {
   try {
     const { body, boundary } = buildMultipartBody(fileBuffer, fileName);
-    const result = await infuraRequest('/api/v0/add', body, boundary);
-    console.log('File uploaded to IPFS:', result.Hash);
-    return result.Hash;
+
+    const result = await new Promise((resolve, reject) => {
+      const options = {
+        hostname: PINATA_API_URL,
+        path: '/pinning/pinFileToIPFS',
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getPinataJWT()}`,
+          'Content-Type': `multipart/form-data; boundary=${boundary}`,
+          'Content-Length': body.length,
+        },
+      };
+
+      const req = https.request(options, (res) => {
+        const chunks = [];
+        res.on('data', (chunk) => chunks.push(chunk));
+        res.on('end', () => {
+          const responseBody = Buffer.concat(chunks).toString();
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            reject(new Error(`Pinata API error ${res.statusCode}: ${responseBody}`));
+            return;
+          }
+          try {
+            resolve(JSON.parse(responseBody));
+          } catch (e) {
+            reject(new Error(`Failed to parse Pinata response: ${responseBody}`));
+          }
+        });
+      });
+
+      req.on('error', reject);
+      req.write(body);
+      req.end();
+    });
+
+    console.log('File uploaded to IPFS via Pinata:', result.IpfsHash);
+    return result.IpfsHash;
   } catch (error) {
     console.error('Error uploading to IPFS:', error);
     throw new Error('Failed to upload file to IPFS');
@@ -138,17 +87,53 @@ async function uploadToIPFS(fileBuffer, fileName) {
 }
 
 /**
- * Upload JSON metadata to IPFS
+ * Upload JSON metadata to IPFS via Pinata
  * @param {Object} metadata - Metadata object
  * @returns {Promise<string>} - IPFS hash
  */
 async function uploadMetadataToIPFS(metadata) {
   try {
-    const content = Buffer.from(JSON.stringify(metadata));
-    const { body, boundary } = buildMultipartBody(content, 'metadata.json');
-    const result = await infuraRequest('/api/v0/add', body, boundary);
-    console.log('Metadata uploaded to IPFS:', result.Hash);
-    return result.Hash;
+    const jsonBody = JSON.stringify({
+      pinataContent: metadata,
+      pinataMetadata: { name: 'metadata.json' },
+    });
+
+    const result = await new Promise((resolve, reject) => {
+      const options = {
+        hostname: PINATA_API_URL,
+        path: '/pinning/pinJSONToIPFS',
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getPinataJWT()}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(jsonBody),
+        },
+      };
+
+      const req = https.request(options, (res) => {
+        const chunks = [];
+        res.on('data', (chunk) => chunks.push(chunk));
+        res.on('end', () => {
+          const responseBody = Buffer.concat(chunks).toString();
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            reject(new Error(`Pinata API error ${res.statusCode}: ${responseBody}`));
+            return;
+          }
+          try {
+            resolve(JSON.parse(responseBody));
+          } catch (e) {
+            reject(new Error(`Failed to parse Pinata response: ${responseBody}`));
+          }
+        });
+      });
+
+      req.on('error', reject);
+      req.write(jsonBody);
+      req.end();
+    });
+
+    console.log('Metadata uploaded to IPFS via Pinata:', result.IpfsHash);
+    return result.IpfsHash;
   } catch (error) {
     console.error('Error uploading metadata to IPFS:', error);
     throw new Error('Failed to upload metadata to IPFS');
@@ -156,7 +141,7 @@ async function uploadMetadataToIPFS(metadata) {
 }
 
 /**
- * Get file from IPFS
+ * Get file from IPFS via Pinata gateway
  * @param {string} hash - IPFS hash
  * @returns {Promise<Buffer>} - File buffer
  */
@@ -164,20 +149,40 @@ async function getFromIPFS(hash) {
   try {
     const result = await new Promise((resolve, reject) => {
       const options = {
-        hostname: INFURA_HOST,
-        port: INFURA_PORT,
-        path: `/api/v0/cat?arg=${encodeURIComponent(hash)}`,
-        method: 'POST',
-        headers: {
-          'Authorization': getAuth(),
-        },
+        hostname: 'gateway.pinata.cloud',
+        path: `/ipfs/${encodeURIComponent(hash)}`,
+        method: 'GET',
       };
 
       const req = https.request(options, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          // Follow redirect
+          const redirectUrl = new URL(res.headers.location);
+          const redirectOptions = {
+            hostname: redirectUrl.hostname,
+            path: redirectUrl.pathname + redirectUrl.search,
+            method: 'GET',
+          };
+          const redirectReq = https.request(redirectOptions, (redirectRes) => {
+            if (redirectRes.statusCode < 200 || redirectRes.statusCode >= 300) {
+              const chunks = [];
+              redirectRes.on('data', (chunk) => chunks.push(chunk));
+              redirectRes.on('end', () => reject(new Error(`IPFS gateway error ${redirectRes.statusCode}: ${Buffer.concat(chunks).toString()}`)));
+              return;
+            }
+            const chunks = [];
+            redirectRes.on('data', (chunk) => chunks.push(chunk));
+            redirectRes.on('end', () => resolve(Buffer.concat(chunks)));
+          });
+          redirectReq.on('error', reject);
+          redirectReq.end();
+          return;
+        }
+
         if (res.statusCode < 200 || res.statusCode >= 300) {
           const chunks = [];
           res.on('data', (chunk) => chunks.push(chunk));
-          res.on('end', () => reject(new Error(`IPFS API error ${res.statusCode}: ${Buffer.concat(chunks).toString()}`)));
+          res.on('end', () => reject(new Error(`IPFS gateway error ${res.statusCode}: ${Buffer.concat(chunks).toString()}`)));
           return;
         }
         const chunks = [];
@@ -196,13 +201,43 @@ async function getFromIPFS(hash) {
 }
 
 /**
- * Pin a file to ensure it stays on IPFS
+ * Pin a file to ensure it stays on IPFS (already pinned on upload with Pinata)
  * @param {string} hash - IPFS hash
  */
 async function pinToIPFS(hash) {
   try {
-    await infuraPost(`/api/v0/pin/add?arg=${encodeURIComponent(hash)}`);
-    console.log('Pinned to IPFS:', hash);
+    const jsonBody = JSON.stringify({ hashToPin: hash });
+
+    await new Promise((resolve, reject) => {
+      const options = {
+        hostname: PINATA_API_URL,
+        path: '/pinning/pinByHash',
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getPinataJWT()}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(jsonBody),
+        },
+      };
+
+      const req = https.request(options, (res) => {
+        const chunks = [];
+        res.on('data', (chunk) => chunks.push(chunk));
+        res.on('end', () => {
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            reject(new Error(`Pinata API error ${res.statusCode}: ${Buffer.concat(chunks).toString()}`));
+            return;
+          }
+          resolve();
+        });
+      });
+
+      req.on('error', reject);
+      req.write(jsonBody);
+      req.end();
+    });
+
+    console.log('Pinned to IPFS via Pinata:', hash);
   } catch (error) {
     console.error('Error pinning to IPFS:', error);
     throw new Error('Failed to pin file to IPFS');
