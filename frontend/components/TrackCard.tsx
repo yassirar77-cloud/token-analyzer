@@ -4,15 +4,14 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Play, Disc } from 'lucide-react';
 import { TrackData } from '@/lib/api';
+import { resolveIpfsCover } from '@/lib/ipfs';
 
 interface TrackCardProps {
   track: TrackData;
 }
 
 export default function TrackCard({ track }: TrackCardProps) {
-  const coverUrl = track.coverImage
-    ? `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}${track.coverImage}`
-    : '/placeholder-cover.png';
+  const coverUrl = resolveIpfsCover(track.coverImage);
 
   return (
     <Link href={`/track/${track.id}`}>

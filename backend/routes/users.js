@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
+const sequelize = require('../config/database');
 const User = require('../models/User');
 const Track = require('../models/Track');
 const Purchase = require('../models/Purchase');
@@ -48,6 +49,36 @@ router.put('/profile', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Error updating profile:', error);
     res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+/**
+ * GET /api/users/artists
+ * Get top artists ranked by track count
+ */
+router.get('/artists', async (req, res) => {
+  try {
+    const artists = await User.findAll({
+      where: { isArtist: true },
+      attributes: [
+        'id',
+        'username',
+        'walletAddress',
+        [sequelize.literal('(SELECT COUNT(*) FROM tracks WHERE tracks."artistId" = "User"."id")'), 'trackCount'],
+      ],
+      order: [[sequelize.literal('"trackCount"'), 'DESC']],
+      limit: 10,
+    });
+
+    res.json(artists.map(a => ({
+      id: a.id,
+      username: a.username,
+      walletAddress: a.walletAddress,
+      trackCount: parseInt(a.getDataValue('trackCount')) || 0,
+    })));
+  } catch (error) {
+    console.error('Error fetching artists:', error);
+    res.status(500).json({ error: 'Failed to fetch artists' });
   }
 });
 

@@ -11,6 +11,7 @@ const sequelize = require('./config/database');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const trackRoutes = require('./routes/tracks');
+const statsRoutes = require('./routes/stats');
 
 const app = express();
 
@@ -56,6 +57,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tracks', trackRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
