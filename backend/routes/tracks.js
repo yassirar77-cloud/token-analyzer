@@ -142,7 +142,16 @@ router.get('/', async (req, res) => {
     }
 
     if (artistId) {
-      where.artistId = artistId;
+      // artistId query param might be a wallet address (0x...) instead of UUID
+      if (artistId.startsWith('0x')) {
+        const artistUser = await User.findOne({ where: { walletAddress: artistId } });
+        if (!artistUser) {
+          return res.status(404).json({ error: 'Artist not found for wallet address' });
+        }
+        where.artistId = artistUser.id;
+      } else {
+        where.artistId = artistId;
+      }
     }
 
     if (search) {
