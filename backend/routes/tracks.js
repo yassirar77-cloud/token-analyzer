@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const Joi = require('joi');
 const { Op } = require('sequelize');
+const sequelize = require('../config/database');
 const Track = require('../models/Track');
 const User = require('../models/User');
 const Purchase = require('../models/Purchase');
@@ -276,11 +277,15 @@ router.get('/:id/analytics', authenticate, requireArtist, async (req, res) => {
       return res.status(403).json({ error: 'Not authorized' });
     }
 
-    const [streamCount, purchases, revenue] = await Promise.all([
+    const [streamCount, purchases, revenueResult] = await Promise.all([
       StreamingAnalytics.count({ where: { trackId: track.id } }),
       Purchase.count({ where: { trackId: track.id } }),
-      Purchase.sum('price', { where: { trackId: track.id } }),
+      sequelize.query(
+        `SELECT COALESCE(SUM(CAST(price AS DECIMAL(18,8))), 0) as total FROM purchases WHERE "trackId" = :trackId`,
+        { replacements: { trackId: track.id }, type: sequelize.QueryTypes.SELECT }
+      ),
     ]);
+    const revenue = revenueResult[0]?.total || 0;
 
     res.json({
       trackId: track.id,
