@@ -30,7 +30,7 @@ const Purchase = sequelize.define('Purchase', {
     allowNull: false,
   },
   price: {
-    type: DataTypes.STRING,
+    type: DataTypes.DECIMAL(18, 8),
     allowNull: false,
   },
   transactionHash: {
