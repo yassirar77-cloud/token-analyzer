@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { trackApi, TrackData } from '@/lib/api';
+import { trackApi, userApi, api, TrackData } from '@/lib/api';
+import { resolveIpfsCover } from '@/lib/ipfs';
 import TrackCard from '@/components/TrackCard';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -89,9 +90,7 @@ function TrendingTrackRow({
   track: TrackData;
   change: 'up' | 'down' | 'same';
 }) {
-  const coverUrl = track.coverImage
-    ? `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}${track.coverImage}`
-    : '/placeholder-cover.png';
+  const coverUrl = resolveIpfsCover(track.coverImage);
 
   return (
     <Link href={`/track/${track.id}`}>
@@ -147,29 +146,33 @@ function TrendingTrackRow({
   );
 }
 
+interface TopArtist {
+  id: string;
+  username: string;
+  walletAddress: string;
+  trackCount: number;
+}
+
 function TopArtistCard({
   rank,
-  name,
-  genre,
-  tracks,
+  artist,
 }: {
   rank: number;
-  name: string;
-  genre: string;
-  tracks: number;
+  artist: TopArtist;
 }) {
+  const displayName = artist.username || `${artist.walletAddress.slice(0, 6)}...${artist.walletAddress.slice(-4)}`;
   return (
     <div className="flex items-center gap-3 sm:gap-[16px] bg-brand-bg border-2 border-white rounded-[20px] p-3 sm:p-[20px] hover:border-brand-blue/50 transition-colors">
       <span className="font-stencil text-[24px] sm:text-[32px] text-white/30 w-[30px] sm:w-[40px]">{rank}</span>
       <div className="w-[44px] h-[44px] sm:w-[56px] sm:h-[56px] rounded-full bg-gradient-to-br from-brand-blue/30 to-brand-red/30 flex items-center justify-center shrink-0">
-        <span className="font-display text-[16px] sm:text-[18px] text-white">{name.charAt(0)}</span>
+        <span className="font-display text-[16px] sm:text-[18px] text-white">{displayName.charAt(0).toUpperCase()}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-sans font-medium text-[14px] sm:text-[16px] text-white leading-[22px] truncate">{name}</p>
-        <p className="font-sans text-[12px] sm:text-[14px] text-white/50 leading-[20px]">{genre}</p>
+        <p className="font-sans font-medium text-[14px] sm:text-[16px] text-white leading-[22px] truncate">{displayName}</p>
+        <p className="font-sans text-[12px] sm:text-[14px] text-white/50 leading-[20px]">Artist</p>
       </div>
       <div className="text-right">
-        <p className="font-sans font-semibold text-[14px] sm:text-[16px] text-white">{tracks}</p>
+        <p className="font-sans font-semibold text-[14px] sm:text-[16px] text-white">{artist.trackCount}</p>
         <p className="font-sans text-[12px] text-white/30">tracks</p>
       </div>
     </div>
@@ -225,19 +228,19 @@ function Footer() {
         <p className="font-logo text-[24px] lg:text-[30px] text-white">Backstreet Dogs</p>
         <div className="grid grid-cols-2 sm:flex gap-4 lg:gap-[26px] items-start">
           <div className="flex gap-[11px] items-center">
-            <img src="/images/artist/icon-audit.png" alt="" className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]" />
+            <svg className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="8" fill="white" fillOpacity="0.1"/><path d="M20 10L22.35 16.65L29.5 17.25L24 22.1L25.7 29.5L20 25.85L14.3 29.5L16 22.1L10.5 17.25L17.65 16.65L20 10Z" fill="white"/></svg>
             <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[21px]">Smart Contract Audited</p>
           </div>
           <div className="flex gap-[11px] items-center">
-            <img src="/images/artist/icon-blockchain.png" alt="" className="w-[30px] h-[27px] sm:w-[40px] sm:h-[36px]" />
+            <svg className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="8" fill="white" fillOpacity="0.1"/><path d="M12 14h16v2H12v-2zm0 5h16v2H12v-2zm0 5h16v2H12v-2zm-2-12v16h20V12H10z" fill="white"/></svg>
             <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[21px]">Built on Base Blockchain</p>
           </div>
           <div className="flex gap-[11px] items-center">
-            <img src="/images/artist/icon-paid.png" alt="" className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]" />
+            <svg className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="8" fill="white" fillOpacity="0.1"/><path d="M20 10c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10-4.5-10-10-10zm1 17.93c-.32.05-.66.07-1 .07s-.68-.02-1-.07V25h2v2.93zM17 20c0-1.66 1.34-3 3-3s3 1.34 3 3-1.34 3-3 3-3-1.34-3-3zm7.9 6.49A8.02 8.02 0 0027.93 21H25v-2h2.93A8.02 8.02 0 0024.9 13.51 4.98 4.98 0 0121 17v-2.93c.34-.05.66-.07 1-.07s.68.02 1 .07V17a4.98 4.98 0 01-3.9-3.49A8.02 8.02 0 0012.07 19H15v2h-2.93a8.02 8.02 0 003.03 5.49A4.98 4.98 0 0119 23v2.93c-.34.05-.66.07-1 .07s-.68-.02-1-.07V23a4.98 4.98 0 013.9 3.49z" fill="white"/></svg>
             <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[21px]">$500K+ Paid to Artists</p>
           </div>
           <div className="flex gap-[10px] items-center">
-            <img src="/images/artist/icon-worldwide.png" alt="" className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]" />
+            <svg className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="8" fill="white" fillOpacity="0.1"/><circle cx="20" cy="20" r="9" stroke="white" strokeWidth="2" fill="none"/><ellipse cx="20" cy="20" rx="4" ry="9" stroke="white" strokeWidth="1.5" fill="none"/><line x1="11" y1="20" x2="29" y2="20" stroke="white" strokeWidth="1.5"/></svg>
             <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[21px]">Available Worldwide</p>
           </div>
         </div>
@@ -271,10 +274,16 @@ function Footer() {
         </p>
         <div className="flex gap-[16px] items-center">
           <div className="flex gap-[19px] items-center">
-            <img src="/images/artist/icon-facebook.png" alt="Facebook" className="w-[40px] h-[40px]" />
-            <img src="/images/artist/icon-instagram.png" alt="Instagram" className="w-[40px] h-[40px]" />
+            <a href="#" aria-label="Facebook" className="w-[40px] h-[40px] rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3V2z"/></svg>
+            </a>
+            <a href="#" aria-label="Instagram" className="w-[40px] h-[40px] rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="white" stroke="none"/></svg>
+            </a>
           </div>
-          <img src="/images/artist/icon-linkedin.png" alt="LinkedIn" className="w-[40px] h-[40px]" />
+          <a href="#" aria-label="LinkedIn" className="w-[40px] h-[40px] rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2V9zm2-6a2 2 0 110 4 2 2 0 010-4z"/></svg>
+          </a>
         </div>
       </div>
     </div>
@@ -289,6 +298,8 @@ type TimePeriod = (typeof TIME_PERIODS)[number];
 
 export default function TrendingPage() {
   const [tracks, setTracks] = useState<TrackData[]>([]);
+  const [topArtists, setTopArtists] = useState<TopArtist[]>([]);
+  const [stats, setStats] = useState({ totalTracks: 0, totalArtists: 0, totalStreams: 0, totalRevenue: '0' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('This Week');
@@ -301,11 +312,19 @@ export default function TrendingPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await trackApi.getAll({ limit: 20 });
-      const sorted = [...response.data].sort(
+
+      const [tracksRes, artistsRes, statsRes] = await Promise.all([
+        trackApi.getAll({ limit: 20 }),
+        api.get<TopArtist[]>('/users/artists').catch(() => ({ data: [] as TopArtist[] })),
+        api.get('/stats').catch(() => ({ data: { totalTracks: 0, totalArtists: 0, totalStreams: 0, totalRevenue: '0' } })),
+      ]);
+
+      const sorted = [...tracksRes.data].sort(
         (a, b) => (b.totalStreams || 0) - (a.totalStreams || 0)
       );
       setTracks(sorted);
+      setTopArtists(artistsRes.data);
+      setStats(statsRes.data);
     } catch (err) {
       console.error('Error loading trending data:', err);
       setError('Failed to load trending data. Please try again.');
@@ -314,19 +333,17 @@ export default function TrendingPage() {
     }
   };
 
+  const formatStat = (n: number): string => {
+    if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
+    if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+    return String(n);
+  };
+
   const getChangeIndicator = (index: number): 'up' | 'down' | 'same' => {
     if (index < 3) return 'up';
     if (index > 7) return 'down';
     return 'same';
   };
-
-  const topArtists = [
-    { name: 'DJ Shadow', genre: 'Hip Hop / Electronic', tracks: 12 },
-    { name: 'Luna Beats', genre: 'Indie / Ambient', tracks: 8 },
-    { name: 'Metro Vinyl', genre: 'Jazz / Funk', tracks: 15 },
-    { name: 'Neon Pulse', genre: 'EDM / Electronic', tracks: 6 },
-    { name: 'Ruby Streets', genre: 'R&B / Pop', tracks: 10 },
-  ];
 
   return (
     <div className="bg-brand-bg min-h-screen relative overflow-hidden">
@@ -379,13 +396,13 @@ export default function TrendingPage() {
       <section className="px-4 md:px-8 lg:px-[164px] -mt-[20px] relative z-10">
         <div className="w-full max-w-[1172px] border-2 border-white rounded-[20px] bg-brand-bg overflow-hidden mx-auto lg:mx-0">
           <div className="grid grid-cols-2 sm:flex items-center">
-            <StatHighlight value="1.2K" label="Tracks This Week" />
+            <StatHighlight value={formatStat(stats.totalTracks)} label="Total Tracks" />
             <div className="hidden sm:block w-[1px] h-[80px] bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-            <StatHighlight value="340" label="Active Artists" />
+            <StatHighlight value={formatStat(stats.totalArtists)} label="Active Artists" />
             <div className="hidden sm:block w-[1px] h-[80px] bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-            <StatHighlight value="89K" label="Total Streams" />
+            <StatHighlight value={formatStat(stats.totalStreams)} label="Total Streams" />
             <div className="hidden sm:block w-[1px] h-[80px] bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-            <StatHighlight value="$12K" label="Artist Earnings" />
+            <StatHighlight value={`$${formatStat(parseFloat(stats.totalRevenue || '0'))}`} label="Artist Earnings" />
           </div>
         </div>
       </section>
@@ -490,17 +507,19 @@ export default function TrendingPage() {
             <div className="flex-1 gradient-divider" />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-[16px]">
-            {topArtists.map((artist, idx) => (
-              <TopArtistCard
-                key={artist.name}
-                rank={idx + 1}
-                name={artist.name}
-                genre={artist.genre}
-                tracks={artist.tracks}
-              />
-            ))}
-          </div>
+          {topArtists.length === 0 ? (
+            <p className="font-sans text-[16px] text-white/50 py-[30px]">No artists yet. Be the first to upload!</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-[16px]">
+              {topArtists.map((artist, idx) => (
+                <TopArtistCard
+                  key={artist.id}
+                  rank={idx + 1}
+                  artist={artist}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
