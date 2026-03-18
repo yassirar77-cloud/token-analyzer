@@ -139,19 +139,19 @@ function Footer() {
         <p className="font-logo text-[24px] lg:text-[30px] text-white">Backstreet Dogs</p>
         <div className="grid grid-cols-2 sm:flex gap-4 lg:gap-[26px] items-start">
           <div className="flex gap-[11px] items-center">
-            <img src="/images/artist/icon-audit.png" alt="" className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]" />
+            <svg className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="8" fill="white" fillOpacity="0.1"/><path d="M20 10L22.35 16.65L29.5 17.25L24 22.1L25.7 29.5L20 25.85L14.3 29.5L16 22.1L10.5 17.25L17.65 16.65L20 10Z" fill="white"/></svg>
             <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[21px]">Smart Contract Audited</p>
           </div>
           <div className="flex gap-[11px] items-center">
-            <img src="/images/artist/icon-blockchain.png" alt="" className="w-[30px] h-[27px] sm:w-[40px] sm:h-[36px]" />
+            <svg className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="8" fill="white" fillOpacity="0.1"/><path d="M12 14h16v2H12v-2zm0 5h16v2H12v-2zm0 5h16v2H12v-2zm-2-12v16h20V12H10z" fill="white"/></svg>
             <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[21px]">Built on Base Blockchain</p>
           </div>
           <div className="flex gap-[11px] items-center">
-            <img src="/images/artist/icon-paid.png" alt="" className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]" />
+            <svg className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="8" fill="white" fillOpacity="0.1"/><path d="M20 10c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10-4.5-10-10-10zm1 17.93c-.32.05-.66.07-1 .07s-.68-.02-1-.07V25h2v2.93zM17 20c0-1.66 1.34-3 3-3s3 1.34 3 3-1.34 3-3 3-3-1.34-3-3zm7.9 6.49A8.02 8.02 0 0027.93 21H25v-2h2.93A8.02 8.02 0 0024.9 13.51 4.98 4.98 0 0121 17v-2.93c.34-.05.66-.07 1-.07s.68.02 1 .07V17a4.98 4.98 0 01-3.9-3.49A8.02 8.02 0 0012.07 19H15v2h-2.93a8.02 8.02 0 003.03 5.49A4.98 4.98 0 0119 23v2.93c-.34.05-.66.07-1 .07s-.68-.02-1-.07V23a4.98 4.98 0 013.9 3.49z" fill="white"/></svg>
             <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[21px]">$500K+ Paid to Artists</p>
           </div>
           <div className="flex gap-[10px] items-center">
-            <img src="/images/artist/icon-worldwide.png" alt="" className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px]" />
+            <svg className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="8" fill="white" fillOpacity="0.1"/><circle cx="20" cy="20" r="9" stroke="white" strokeWidth="2" fill="none"/><ellipse cx="20" cy="20" rx="4" ry="9" stroke="white" strokeWidth="1.5" fill="none"/><line x1="11" y1="20" x2="29" y2="20" stroke="white" strokeWidth="1.5"/></svg>
             <p className="font-sans text-[14px] sm:text-[16px] text-white leading-[21px]">Available Worldwide</p>
           </div>
         </div>
@@ -185,10 +185,16 @@ function Footer() {
         </p>
         <div className="flex gap-[16px] items-center">
           <div className="flex gap-[19px] items-center">
-            <img src="/images/artist/icon-facebook.png" alt="Facebook" className="w-[40px] h-[40px]" />
-            <img src="/images/artist/icon-instagram.png" alt="Instagram" className="w-[40px] h-[40px]" />
+            <a href="#" aria-label="Facebook" className="w-[40px] h-[40px] rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3V2z"/></svg>
+            </a>
+            <a href="#" aria-label="Instagram" className="w-[40px] h-[40px] rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="white" stroke="none"/></svg>
+            </a>
           </div>
-          <img src="/images/artist/icon-linkedin.png" alt="LinkedIn" className="w-[40px] h-[40px]" />
+          <a href="#" aria-label="LinkedIn" className="w-[40px] h-[40px] rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2V9zm2-6a2 2 0 110 4 2 2 0 010-4z"/></svg>
+          </a>
         </div>
       </div>
     </div>

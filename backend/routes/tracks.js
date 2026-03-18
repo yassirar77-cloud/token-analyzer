@@ -90,13 +90,32 @@ router.post('/upload', authenticate, requireArtist, upload.fields([
 
     const metadataHash = await uploadMetadataToIPFS(metadata);
 
-    // This will be created on-chain, for now we'll prepare the data
+    // Find the next available trackId
+    const lastTrack = await Track.findOne({ order: [['trackId', 'DESC']] });
+    const nextTrackId = lastTrack ? lastTrack.trackId + 1 : 1;
+
+    // Save track to database
+    const track = await Track.create({
+      trackId: nextTrackId,
+      artistId: req.user.id,
+      title,
+      artist: req.user.username || req.user.walletAddress,
+      description: description || null,
+      genre: genre || null,
+      ipfsHash,
+      coverImage: coverImageHash,
+      streamingPrice: streamingPrice || null,
+      nftPrice: nftPrice || null,
+      maxEditions: parseInt(maxEditions) || 100,
+    });
+
     res.json({
       success: true,
+      track,
       ipfsHash,
       coverImageHash,
       metadataHash,
-      message: 'Track uploaded to IPFS. Now create on-chain via smart contract.',
+      message: 'Track uploaded and saved successfully.',
     });
   } catch (error) {
     console.error('Error uploading track:', error);
