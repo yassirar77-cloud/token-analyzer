@@ -41,7 +41,7 @@ export default function RootLayout({
       <body className="bg-brand-bg text-white min-h-screen">
         <WagmiConfig config={wagmiConfig}>
           <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider chains={chains}>
+            <RainbowKitProvider chains={chains} modalSize="compact">
               <AuthGate>
                 {!isFullWidth && <Navbar />}
                 <main className={isFullWidth ? '' : 'container mx-auto px-4 py-8'}>

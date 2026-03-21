@@ -158,12 +158,18 @@ function TrustBadge({ icon, label }: { icon: string; label: string }) {
 function WalletButton() {
   return (
     <ConnectButton.Custom>
-      {({ openConnectModal, account }) => {
-        const label = account ? account.displayName : 'Connect Wallet';
+      {({ openConnectModal, account, mounted }) => {
+        if (!mounted || !account) {
+          return (
+            <button onClick={openConnectModal} className="btn-gradient-sm text-base lg:text-lg font-body font-semibold !px-6 lg:!px-12">
+              Connect Wallet
+            </button>
+          );
+        }
         return (
-          <button onClick={openConnectModal} className="btn-gradient-sm text-base lg:text-lg font-body font-semibold !px-6 lg:!px-12">
-            {label}
-          </button>
+          <div className="btn-gradient-sm text-base lg:text-lg font-body font-semibold !px-6 lg:!px-12 cursor-default">
+            {account.displayName}
+          </div>
         );
       }}
     </ConnectButton.Custom>
@@ -173,12 +179,18 @@ function WalletButton() {
 function HeroWalletButton() {
   return (
     <ConnectButton.Custom>
-      {({ openConnectModal, account }) => {
-        const label = account ? account.displayName : 'Connect Wallet';
+      {({ openConnectModal, account, mounted }) => {
+        if (!mounted || !account) {
+          return (
+            <button onClick={openConnectModal} className="btn-gradient text-base lg:text-lg font-body font-semibold !px-8 lg:!px-16">
+              Connect Wallet
+            </button>
+          );
+        }
         return (
-          <button onClick={openConnectModal} className="btn-gradient text-base lg:text-lg font-body font-semibold !px-8 lg:!px-16">
-            {label}
-          </button>
+          <div className="btn-gradient text-base lg:text-lg font-body font-semibold !px-8 lg:!px-16 cursor-default">
+            {account.displayName}
+          </div>
         );
       }}
     </ConnectButton.Custom>

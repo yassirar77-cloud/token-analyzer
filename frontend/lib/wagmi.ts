@@ -1,4 +1,11 @@
-import { getDefaultWallets } from '@rainbow-me/rainbowkit';
+import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import {
+  metaMaskWallet,
+  rainbowWallet,
+  coinbaseWallet,
+  walletConnectWallet,
+  injectedWallet,
+} from '@rainbow-me/rainbowkit/wallets';
 import { configureChains, createConfig } from 'wagmi';
 import { localhost, sepolia, mainnet } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
@@ -17,11 +24,18 @@ if (projectId === 'PLACEHOLDER_FOR_BUILD') {
   console.warn('Warning: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set. Wallet connections may fail.');
 }
 
-const { connectors } = getDefaultWallets({
-  appName: 'Back Street Dogs',
-  projectId,
-  chains,
-});
+const connectors = connectorsForWallets([
+  {
+    groupName: 'Popular',
+    wallets: [
+      injectedWallet({ chains }),
+      metaMaskWallet({ projectId, chains }),
+      coinbaseWallet({ appName: 'Back Street Dogs', chains }),
+      rainbowWallet({ projectId, chains }),
+      walletConnectWallet({ projectId, chains }),
+    ],
+  },
+]);
 
 export const wagmiConfig = createConfig({
   autoConnect: true,
