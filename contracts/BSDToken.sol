@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -45,12 +45,12 @@ contract BSDToken is ERC20, Ownable {
     }
 
     function transfer(address recipient, uint256 amount) public override returns (bool) {
-        _transfer(_msgSender(), recipient, amount);
+        _executeTransfer(_msgSender(), recipient, amount);
         return true;
     }
 
     function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
-        _transfer(sender, recipient, amount);
+        _executeTransfer(sender, recipient, amount);
 
         uint256 currentAllowance = allowance(sender, _msgSender());
         require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
@@ -59,7 +59,7 @@ contract BSDToken is ERC20, Ownable {
         return true;
     }
 
-    function _transfer(address from, address to, uint256 amount) internal override {
+    function _executeTransfer(address from, address to, uint256 amount) internal {
         require(from != address(0), "ERC20: transfer from zero address");
         require(to != address(0), "ERC20: transfer to zero address");
         require(amount > 0, "Transfer amount must be greater than zero");

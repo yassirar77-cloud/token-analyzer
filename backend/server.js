@@ -12,6 +12,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const trackRoutes = require('./routes/tracks');
 const statsRoutes = require('./routes/stats');
+const streamingRoutes = require('./routes/streaming');
 
 const app = express();
 
@@ -58,6 +59,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tracks', trackRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/stream', streamingRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

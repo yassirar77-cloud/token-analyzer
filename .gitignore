@@ -137,3 +137,17 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Hardhat artifacts and cache
+artifacts/
+cache/
+
+# ZK circuit build artifacts
+build/
+
+# Trusted setup ceremony files (large binaries)
+trusted-setup/*.ptau
+
+# Deployment info (contains addresses, regenerated on deploy)
+deployment.json
+deployment-zk.json

@@ -115,4 +115,21 @@ export const trackApi = {
   getAnalytics: (id: string) => api.get(`/tracks/${id}/analytics`),
 };
 
+// ZK Privacy / Anonymous Streaming API
+export const privacyApi = {
+  createAnonymousSession: (proof: object, publicSignals: string[]) =>
+    api.post('/stream/anonymous-session', { proof, publicSignals }),
+
+  validateSession: (sessionToken: string) =>
+    api.get('/stream/session/validate', {
+      headers: { 'x-session-token': sessionToken },
+    }),
+
+  streamAnonymously: (trackId: string, sessionToken: string) =>
+    api.get(`/stream/${trackId}`, {
+      headers: { 'x-session-token': sessionToken },
+      responseType: 'blob',
+    }),
+};
+
 export default api;
