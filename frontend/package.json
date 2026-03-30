@@ -28,7 +28,10 @@
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
     "clsx": "^2.0.0",
-    "date-fns": "^3.0.0"
+    "date-fns": "^3.0.0",
+    "@semaphore-protocol/core": "^4.0.0",
+    "@semaphore-protocol/proof": "^4.0.0",
+    "snarkjs": "^0.7.3"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",

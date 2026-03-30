@@ -25,5 +25,13 @@ module.exports = {
     tests: "./test",
     cache: "./cache",
     artifacts: "./artifacts"
+  },
+  // External contract paths for Semaphore protocol
+  external: {
+    contracts: [
+      {
+        artifacts: "node_modules/@semaphore-protocol/contracts/artifacts",
+      },
+    ],
   }
 };

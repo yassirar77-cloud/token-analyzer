@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { Music2, Home, Compass, User, BarChart3 } from 'lucide-react';
+import { Music2, Home, Compass, User, BarChart3, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Navbar() {
@@ -13,6 +13,7 @@ export default function Navbar() {
     { href: '/', label: 'Home', icon: Home },
     { href: '/explore', label: 'Explore', icon: Compass },
     { href: '/artist', label: 'Artist', icon: BarChart3 },
+    { href: '/zk-privacy', label: 'Privacy', icon: Shield },
     { href: '/profile', label: 'Profile', icon: User },
   ];
 
