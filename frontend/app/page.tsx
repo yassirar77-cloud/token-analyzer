@@ -228,6 +228,7 @@ export default function Home() {
               <Link href="/explore" className="text-white text-base lg:text-lg leading-[30px] hover:opacity-80 transition-opacity">Explore</Link>
               <Link href="/artist" className="text-white text-base lg:text-lg leading-[30px] hover:opacity-80 transition-opacity">Artist</Link>
               <Link href="/profile" className="text-white text-base lg:text-lg leading-[30px] hover:opacity-80 transition-opacity">Profile</Link>
+              <Link href="/trending" className="text-white text-base lg:text-lg leading-[30px] hover:opacity-80 transition-opacity">Trending</Link>
             </div>
             <WalletButton />
           </div>
@@ -247,6 +248,7 @@ export default function Home() {
             <Link href="/explore" className="text-white text-lg font-body font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Explore</Link>
             <Link href="/artist" className="text-white text-lg font-body font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Artist</Link>
             <Link href="/profile" className="text-white text-lg font-body font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
+            <Link href="/trending" className="text-white text-lg font-body font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Trending</Link>
             <WalletButton />
           </div>
         )}
@@ -484,7 +486,6 @@ export default function Home() {
           </div>
 
           <div className="w-full max-w-[1103px]">
-            <div className="gradient-divider mb-[22px]" />
             <div className="gradient-divider mb-[25px] lg:mb-[35px]" />
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex flex-col gap-[20px] lg:gap-[27px]">
@@ -623,6 +624,7 @@ export default function Home() {
               <Link href="/explore" className="hover:opacity-80 transition-opacity">Explore</Link>
               <Link href="/artist" className="hover:opacity-80 transition-opacity">Artist</Link>
               <Link href="/profile" className="hover:opacity-80 transition-opacity">Profile</Link>
+              <Link href="/trending" className="hover:opacity-80 transition-opacity">Trending</Link>
               <span className="cursor-pointer hover:opacity-80 transition-opacity">Connect Wallet</span>
               <Link href="/privacy" className="cursor-pointer hover:opacity-80 transition-opacity">Privacy Policy</Link>
             </div>

@@ -394,7 +394,7 @@ export default function TrendingPage() {
 
       {/* ===== STATS BAR ===== */}
       <section className="px-4 md:px-8 lg:px-[164px] -mt-[20px] relative z-10">
-        <div className="w-full max-w-[1172px] border-2 border-white rounded-[20px] bg-brand-bg overflow-hidden mx-auto lg:mx-0">
+        <div className="w-full max-w-[1172px] border-2 border-white rounded-[20px] bg-brand-bg overflow-hidden mx-auto">
           <div className="grid grid-cols-2 sm:flex items-center">
             <StatHighlight value={formatStat(stats.totalTracks)} label="Total Tracks" />
             <div className="hidden sm:block w-[1px] h-[80px] bg-gradient-to-b from-transparent via-white/20 to-transparent" />
