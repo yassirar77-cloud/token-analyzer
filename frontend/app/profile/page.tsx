@@ -426,8 +426,8 @@ export default function ProfilePage() {
                 <div
                   className="absolute h-[2px] rounded-full bg-gradient-card transition-all duration-300"
                   style={{
-                    width: '80px',
-                    left: `${TABS.indexOf(activeTab) * (80 + 45)}px`,
+                    width: activeTab === 'Collection' ? '80px' : activeTab === 'Activity' ? '60px' : '65px',
+                    left: activeTab === 'Collection' ? '0px' : activeTab === 'Activity' ? 'calc(80px + 24px)' : 'calc(80px + 60px + 48px)',
                   }}
                 />
               </div>
@@ -542,18 +542,18 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* CTA Section */}
-      <div className="py-[30px] lg:py-[54px]">
-        <CTABanner />
-      </div>
-
       {/* Grunge texture */}
-      <div className="relative w-full h-[229px] overflow-hidden opacity-30">
+      <div className="relative w-full h-[229px] overflow-hidden opacity-30 mt-[50px] lg:mt-[80px]">
         <img
           src="/images/artist/texture-grunge.png"
           alt=""
           className="w-full h-full object-cover"
         />
+      </div>
+
+      {/* CTA Section */}
+      <div className="py-[30px] lg:py-[54px]">
+        <CTABanner />
       </div>
 
       {/* Footer */}

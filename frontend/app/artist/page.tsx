@@ -34,7 +34,9 @@ function ArtistNavbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="hover:opacity-80 transition-opacity"
+                className={`hover:opacity-80 transition-opacity ${
+                  pathname === item.href ? 'opacity-100' : ''
+                }`}
               >
                 {item.label}
               </Link>
@@ -318,7 +320,7 @@ function UploadForm({ onSuccess }: { onSuccess: () => void }) {
           </div>
         </div>
         <div className="flex-1 flex flex-col gap-[14px]">
-          <p className="font-sans text-[14px] sm:text-[16px] text-white/50 leading-[30px] uppercase">Genres</p>
+          <p className="font-sans text-[14px] sm:text-[16px] text-white/50 leading-[30px] uppercase">Sub Genre</p>
           <div className="relative h-[40px] rounded-full border border-white flex items-center px-[16px] sm:px-[20px]">
             <select
               value={subGenre}
@@ -603,8 +605,8 @@ export default function ArtistDashboard() {
                 <div
                   className="absolute h-[2px] rounded-full bg-gradient-card transition-all duration-300"
                   style={{
-                    width: '59px',
-                    left: `${TABS.indexOf(activeTab) * (59 + 45)}px`,
+                    width: activeTab === 'Bio' ? '30px' : activeTab === 'Tracks' ? '50px' : activeTab === 'Earning' ? '58px' : '55px',
+                    left: activeTab === 'Bio' ? '0px' : activeTab === 'Tracks' ? 'calc(30px + 24px)' : activeTab === 'Earning' ? 'calc(30px + 50px + 48px)' : 'calc(30px + 50px + 58px + 72px)',
                   }}
                 />
               </div>
