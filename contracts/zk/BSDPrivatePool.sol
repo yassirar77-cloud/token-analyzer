@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
@@ -51,12 +51,7 @@ contract BSDPrivatePool {
         admin = msg.sender;
 
         // Default denominations: 10, 100, 1000, 10000 BSD (in wei)
-        uint256[4] memory defaults = [
-            10 ether,
-            100 ether,
-            1000 ether,
-            10000 ether
-        ];
+        uint256[4] memory defaults = [uint256(10 ether), uint256(100 ether), uint256(1000 ether), uint256(10000 ether)];
         for (uint256 i = 0; i < defaults.length; i++) {
             supportedAmounts[defaults[i]] = true;
             denominationList.push(defaults[i]);

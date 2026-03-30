@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 /**
  * @title MusicNFT
@@ -13,9 +12,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
  * Each track can have multiple limited editions with automatic 10% artist royalties on resales
  */
 contract MusicNFT is ERC721, ERC721URIStorage, ERC721Royalty, Ownable {
-    using Counters for Counters.Counter;
-
-    Counters.Counter private _tokenIdCounter;
+    uint256 private _tokenIdCounter;
 
     struct TrackInfo {
         uint256 trackId;
@@ -41,7 +38,7 @@ contract MusicNFT is ERC721, ERC721URIStorage, ERC721Royalty, Ownable {
     mapping(uint256 => Edition) public editions;
 
     // Counter for track IDs
-    Counters.Counter private _trackIdCounter;
+    uint256 private _trackIdCounter;
 
     // Mapping to track verified artists
     mapping(address => bool) public verifiedArtists;
@@ -71,8 +68,8 @@ contract MusicNFT is ERC721, ERC721URIStorage, ERC721Royalty, Ownable {
     ) external returns (uint256) {
         require(maxEditions > 0 && maxEditions <= 10000, "Invalid edition count");
 
-        uint256 trackId = _trackIdCounter.current();
-        _trackIdCounter.increment();
+        uint256 trackId = _trackIdCounter;
+        _trackIdCounter++;
 
         tracks[trackId] = TrackInfo({
             trackId: trackId,
@@ -102,8 +99,8 @@ contract MusicNFT is ERC721, ERC721URIStorage, ERC721Royalty, Ownable {
         require(track.exists, "Track does not exist");
         require(track.mintedEditions < track.maxEditions, "All editions minted");
 
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = _tokenIdCounter;
+        _tokenIdCounter++;
 
         uint256 editionNumber = track.mintedEditions + 1;
         track.mintedEditions++;
@@ -159,7 +156,7 @@ contract MusicNFT is ERC721, ERC721URIStorage, ERC721Royalty, Ownable {
      * @dev Get total number of tracks
      */
     function getTotalTracks() external view returns (uint256) {
-        return _trackIdCounter.current();
+        return _trackIdCounter;
     }
 
     // Override required functions
@@ -174,9 +171,5 @@ contract MusicNFT is ERC721, ERC721URIStorage, ERC721Royalty, Ownable {
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
-    }
-
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage, ERC721Royalty) {
-        super._burn(tokenId);
     }
 }

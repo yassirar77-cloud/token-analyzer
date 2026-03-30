@@ -34,7 +34,7 @@ async function main() {
   let streamingVerifierAddress;
   try {
     const StreamingVerifier = await ethers.getContractFactory(
-      "Groth16Verifier" // snarkjs generates this name — rename if needed
+      "StreamingGroth16Verifier"
     );
     const streamingVerifier = await StreamingVerifier.deploy();
     await streamingVerifier.waitForDeployment();
@@ -53,7 +53,7 @@ async function main() {
   let transferVerifierAddress;
   try {
     const TransferVerifier = await ethers.getContractFactory(
-      "Groth16Verifier"
+      "TransferGroth16Verifier"
     );
     const transferVerifier = await TransferVerifier.deploy();
     await transferVerifier.waitForDeployment();

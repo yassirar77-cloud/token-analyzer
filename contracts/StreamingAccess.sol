@@ -1,17 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-
 /**
  * @title StreamingAccess
  * @dev Manages permanent streaming access rights for music tracks
  * Users who purchase streaming access gain permanent rights to stream a track
  */
 contract StreamingAccess is AccessControl {
-    using Counters for Counters.Counter;
-
     bytes32 public constant MARKETPLACE_ROLE = keccak256("MARKETPLACE_ROLE");
 
     struct StreamingRight {
